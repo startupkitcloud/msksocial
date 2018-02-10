@@ -1,0 +1,6 @@
+com/mangobits/startupkit/social/like/LikesService.class
+com/mangobits/startupkit/social/like/Likes.class
+com/mangobits/startupkit/social/like/LikesRestService.class
+com/mangobits/startupkit/social/like/LikesDAO.class
+com/mangobits/startupkit/social/like/LikesServiceImpl.class
+com/mangobits/startupkit/social/like/Like.class

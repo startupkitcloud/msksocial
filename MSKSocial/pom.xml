@@ -3,7 +3,7 @@
   	<modelVersion>4.0.0</modelVersion>
     <groupId>com.mangobits.startupkit.social</groupId>
     <artifactId>MSKSocial</artifactId>
-    <version>1.0.16</version>
+    <version>1.0.0</version>
     <packaging>ejb</packaging>
   
     <name>${project.groupId}:${project.artifactId}</name>
@@ -52,63 +52,53 @@
         
         <!-- msk config versions -->
 		<msk-core-version>1.0.46</msk-core-version>
-		<msk-user-version>1.0.64</msk-user-version>
+		<msk-user-version>1.0.63</msk-user-version>
 		<msk-rs-version>1.0.2</msk-rs-version>
-		<msk-catalogue-version>1.0.36</msk-catalogue-version>
-		<msk-payment-version>1.1.10</msk-payment-version>
-		<msk-admin-version>1.0.37</msk-admin-version>
+		<msk-notification-version>1.0.25</msk-notification-version>
     </properties> 
     
     <dependencies>
-        <dependency>
+		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
-			<type>jar</type>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.6.1</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<version>1.9.13</version>
-			<type>jar</type>
+			<groupId>org.hibernate.ogm</groupId>
+			<artifactId>hibernate-ogm-core</artifactId>
+			<version>5.0.0.Final</version>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
-             <groupId>org.hibernate.ogm</groupId>
-             <artifactId>hibernate-ogm-core</artifactId>
-             <version>5.0.0.Final</version>
-             <scope>provided</scope>
-         </dependency>
-		
-		<dependency>
-		    <groupId>org.hibernate.ogm</groupId>
-		    <artifactId>hibernate-ogm-mongodb</artifactId>
-		    <version>5.0.0.Final</version>
-		    <scope>provided</scope> 
+			<groupId>org.hibernate.ogm</groupId>
+			<artifactId>hibernate-ogm-mongodb</artifactId>
+			<version>5.0.0.Final</version>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>3.2.2</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
-  			<groupId>org.hibernate</groupId>
-  			<artifactId>hibernate-search</artifactId>
-  			<version>5.5.4.Final</version>
-  			<scope>provided</scope>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-search</artifactId>
+			<version>5.5.4.Final</version>
+			<scope>provided</scope>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
@@ -116,33 +106,33 @@
 			<type>jar</type>
 		</dependency>
 
-		
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
 			<version>1.9.3</version>
 			<type>jar</type>
 		</dependency>
-		
-		
+
+
 		<dependency>
-		    <groupId>commons-httpclient</groupId>
-		    <artifactId>commons-httpclient</artifactId>
-		    <version>3.1</version>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
 		</dependency>
-		
-		
+
+
 		<dependency>
-		    <groupId>commons-lang</groupId>
-		    <artifactId>commons-lang</artifactId>
-		    <version>2.6</version>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
 		</dependency>
-		
-		
+
+
 		<dependency>
-    		<groupId>commons-codec</groupId>
-    		<artifactId>commons-codec</artifactId>
-    		<version>1.9</version>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.9</version>
 		</dependency>
 		
 		
@@ -151,40 +141,25 @@
     		<artifactId>MSKCore</artifactId>
     		<version>${msk-core-version}</version>
 		</dependency>
-		
-		
-		<dependency>
-    		<groupId>com.mangobits.startupkit.user</groupId>
-    		<artifactId>MSKUser</artifactId>
-    		<version>${msk-user-version}</version>
-		</dependency>
-		
+
 		
 		<dependency> 
     		<groupId>com.mangobits.startupkit.ws</groupId>
     		<artifactId>MSKRs</artifactId> 
     		<version>${msk-rs-version}</version>
 		</dependency>
-		
-		
-		<dependency> 
-    		<groupId>com.mangobits.startupkit.catalogue</groupId>
-    		<artifactId>MSKCatalogue</artifactId> 
-    		<version>${msk-catalogue-version}</version>
-		</dependency>
-		
-		
+
 		<dependency>
-    		<groupId>com.mangobits.startupkit.payment</groupId>
-    		<artifactId>MSKPayment</artifactId>
-    		<version>${msk-payment-version}</version>
+			<groupId>com.mangobits.startupkit.notification</groupId>
+			<artifactId>MSKNotification</artifactId>
+			<version>${msk-notification-version}</version>
 		</dependency>
 
-		
+
 		<dependency>
-    		<groupId>com.mangobits.startupkit.admin</groupId>
-    		<artifactId>MSKAdmin</artifactId>
-    		<version>${msk-admin-version}</version>
+			<groupId>com.mangobits.startupkit.user</groupId>
+			<artifactId>MSKUser</artifactId>
+			<version>${msk-user-version}</version>
 		</dependency>
 
 
