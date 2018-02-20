@@ -75,7 +75,7 @@ public class LikesRestService {
 		JsonContainer cont = new JsonContainer();
 
 		try {
-			List<Like> list = likesService.listLikesMe(idObject);
+			List list = likesService.listLikesMe(idObject);
 			cont.setData(list);
 
 		} catch (Exception e) {
@@ -107,7 +107,7 @@ public class LikesRestService {
 		JsonContainer cont = new JsonContainer();
 
 		try {
-			List<Like> list = likesService.listILike(idObject);
+			List list = likesService.listILike(idObject);
 			cont.setData(list);
 
 		} catch (Exception e) {

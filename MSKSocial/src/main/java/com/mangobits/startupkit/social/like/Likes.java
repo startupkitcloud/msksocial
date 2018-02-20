@@ -19,19 +19,20 @@ public class Likes {
 	
 	@Id
 	@DocumentId
-    private String idOjbect;
+    protected String idOjbect;
 
 
 	@Field
-	private String typeObject;
+	protected String typeObject;
 
 
 	@ElementCollection(fetch = FetchType.EAGER)
-	private List<Like> listLikesMe;
+	protected List<Like> listLikesMe;
 
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	private List<Like> listILike;
+
+	@ElementCollection(fetch = FetchType.EAGER, targetClass = Like.class)
+	protected List<Like> listILike;
 		
 	
 	public Likes(){
@@ -43,6 +44,7 @@ public class Likes {
 		this.idOjbect = idOjbect;
 	}
 
+
 	public String getIdOjbect() {
 		return idOjbect;
 	}
@@ -51,28 +53,27 @@ public class Likes {
 		this.idOjbect = idOjbect;
 	}
 
-
-	public List<Like> getListLikesMe() {
-		return listLikesMe;
-	}
-
-	public void setListLikesMe(List<Like> likesMe) {
-		this.listLikesMe = likesMe;
-	}
-
-	public List<Like> getListILike() {
-		return listILike;
-	}
-
-	public void setListILike(List<Like> likesMyself) {
-		this.listILike = likesMyself;
-	}
-
 	public String getTypeObject() {
 		return typeObject;
 	}
 
 	public void setTypeObject(String typeObject) {
 		this.typeObject = typeObject;
+	}
+
+	public List<Like> getListLikesMe() {
+		return listLikesMe;
+	}
+
+	public void setListLikesMe(List<Like> listLikesMe) {
+		this.listLikesMe = listLikesMe;
+	}
+
+	public List<Like> getListILike() {
+		return listILike;
+	}
+
+	public void setListILike(List<Like> listILike) {
+		this.listILike = listILike;
 	}
 }

@@ -103,7 +103,7 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public List<Like> listLikesMe(String idObject) throws BusinessException, ApplicationException {
+    public List<? extends Like> listLikesMe(String idObject) throws BusinessException, ApplicationException {
 
         List<Like> list = new ArrayList<>();
 
@@ -126,9 +126,9 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public List<Like> listILike(String idObject) throws BusinessException, ApplicationException {
+    public List<? extends Like> listILike(String idObject) throws BusinessException, ApplicationException {
 
-        List<Like> list = new ArrayList<>();
+        List<? extends Like> list = new ArrayList<>();
 
         try {
 

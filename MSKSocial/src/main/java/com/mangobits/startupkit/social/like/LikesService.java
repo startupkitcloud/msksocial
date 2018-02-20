@@ -14,8 +14,8 @@ public interface LikesService {
 	void like(Like like) throws ApplicationException, BusinessException;
 
 
-	List<Like> listLikesMe(String idObject) throws BusinessException, ApplicationException;
+	List<? extends Like> listLikesMe(String idObject) throws BusinessException, ApplicationException;
 
 
-	List<Like> listILike(String idObject) throws BusinessException, ApplicationException;
+	List<? extends Like> listILike(String idObject) throws BusinessException, ApplicationException;
 }

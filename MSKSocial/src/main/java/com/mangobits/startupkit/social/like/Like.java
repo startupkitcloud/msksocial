@@ -6,11 +6,13 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.Embeddable;
+import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Indexed
 @Embeddable
+@MappedSuperclass
 public class Like {
 
     @Field
