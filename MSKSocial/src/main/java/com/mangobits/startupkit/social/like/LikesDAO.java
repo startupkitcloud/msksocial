@@ -1,6 +1,6 @@
 package com.mangobits.startupkit.social.like;
 
-import com.mangobits.startupkit.core.utils.AbstractDAO;
+import com.mangobits.startupkit.core.dao.AbstractDAO;
 
 
 public class LikesDAO extends AbstractDAO<Likes> {
@@ -11,7 +11,7 @@ public class LikesDAO extends AbstractDAO<Likes> {
 	
 
 	@Override
-	protected Object getId(Likes obj) {
+	public Object getId(Likes obj) {
 		return obj.getIdOjbect();
 	}
 }
