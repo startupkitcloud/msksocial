@@ -63,7 +63,7 @@ public class Post {
 
     @Field
     @Enumerated(EnumType.STRING)
-    private SimpleStatusEnum status;
+    private PostStatusEnum status;
 
 
     @IndexedEmbedded
@@ -129,11 +129,11 @@ public class Post {
         this.views = views;
     }
 
-    public SimpleStatusEnum getStatus() {
+    public PostStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(SimpleStatusEnum status) {
+    public void setStatus(PostStatusEnum status) {
         this.status = status;
     }
 

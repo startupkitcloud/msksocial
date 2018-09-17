@@ -56,15 +56,7 @@ public class PostRestService  extends UserBaseRestService {
             cont.setData(post);
 
         } catch (Exception e) {
-
-            if(!(e instanceof BusinessException)){
-                e.printStackTrace();
-            }
-
-            cont.setSuccess(false);
-            cont.setDesc(e.getMessage());
-
-            emailService.sendEmailError(e);
+            handleException(cont, e, "saving a post");
         }
 
 
@@ -88,15 +80,31 @@ public class PostRestService  extends UserBaseRestService {
             cont.setData(list);
 
         } catch (Exception e) {
+            handleException(cont, e, "listing all");
+        }
 
-            if(!(e instanceof BusinessException)){
-                e.printStackTrace();
-            }
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
 
-            cont.setSuccess(false);
-            cont.setDesc(e.getMessage());
+        return resultStr;
+    }
 
-            emailService.sendEmailError(e);
+
+    @GET
+    @Path("/listPending")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listPending() throws Exception {
+
+        String resultStr = null;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            List<Post> list = postService.listPending();
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "listing pending");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -193,6 +201,8 @@ public class PostRestService  extends UserBaseRestService {
         };
     }
 
+
+
     @SecuredUser
     @POST
     @Path("/saveImage")
@@ -217,7 +227,4 @@ public class PostRestService  extends UserBaseRestService {
 
         return resultStr;
     }
-
-
-
 }

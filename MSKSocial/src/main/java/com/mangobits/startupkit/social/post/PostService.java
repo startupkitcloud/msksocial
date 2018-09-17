@@ -14,6 +14,8 @@ public interface PostService {
 
     List<Post> listAll() throws Exception;
 
+    List<Post> listPending() throws Exception;
+
     Post retrieve(String idPost) throws Exception;
 
     void saveImage(PhotoUpload photoUpload) throws Exception;

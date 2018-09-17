@@ -3,9 +3,9 @@ package com.mangobits.startupkit.social.spider;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
+import com.mangobits.startupkit.social.post.PostStatusEnum;
 import com.mangobits.startupkit.social.spider.site.Site;
 import com.mangobits.startupkit.social.spider.site.SiteService;
-import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.UserService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -129,7 +129,7 @@ public class SpiderServiceImpl implements SpiderService {
 
             Post post = new Post();
             post.setUserCreator(userService.generateCard(site.getIdUserPostCreator()));
-            post.setStatus(SimpleStatusEnum.BLOCKED);
+            post.setStatus(PostStatusEnum.BLOCKED);
             post.setCreationDate(new Date());
             post.setDesc(infoUrl.getDesc());
             post.setInfoUrl(infoUrl);

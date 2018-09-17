@@ -17,3 +17,4 @@ com/mangobits/startupkit/social/spider/site/SiteDAO.class
 com/mangobits/startupkit/social/like/Like.class
 com/mangobits/startupkit/social/spider/site/SiteServiceImpl.class
 com/mangobits/startupkit/social/spider/InfoUrl.class
+com/mangobits/startupkit/social/post/PostStatusEnum.class

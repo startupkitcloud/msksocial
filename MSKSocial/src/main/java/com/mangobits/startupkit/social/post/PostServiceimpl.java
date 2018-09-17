@@ -8,7 +8,6 @@ import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
-import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
 
 import javax.ejb.EJB;
@@ -38,11 +37,11 @@ public class PostServiceimpl implements PostService {
 
         Post post = retrieve(idPost);
 
-        if(post.getStatus().equals(SimpleStatusEnum.ACTIVE)){
-            post.setStatus(SimpleStatusEnum.BLOCKED);
+        if(post.getStatus().equals(PostStatusEnum.ACTIVE)){
+            post.setStatus(PostStatusEnum.BLOCKED);
         }
         else{
-            post.setStatus(SimpleStatusEnum.ACTIVE);
+            post.setStatus(PostStatusEnum.ACTIVE);
         }
 
         save(post);
@@ -55,7 +54,7 @@ public class PostServiceimpl implements PostService {
 
         if(post.getId() == null){
             post.setCreationDate(new Date());
-            post.setStatus(SimpleStatusEnum.ACTIVE);
+            post.setStatus(PostStatusEnum.ACTIVE);
             postDAO.insert(post);
         }else {
             new BusinessUtils<Post>(postDAO).basicSave(post);
@@ -67,7 +66,16 @@ public class PostServiceimpl implements PostService {
     @Override
     public List<Post> listAll() throws Exception {
 
-        List<Post> list = this.postDAO.search((new SearchBuilder()).appendParam("status", SimpleStatusEnum.ACTIVE).build());
+        List<Post> list = this.postDAO.search((new SearchBuilder()).appendParam("status", PostStatusEnum.ACTIVE).build());
+
+        return list;
+    }
+
+
+    @Override
+    public List<Post> listPending() throws Exception {
+
+        List<Post> list = this.postDAO.search((new SearchBuilder()).appendParam("status", PostStatusEnum.PENDING).build());
 
         return list;
     }
