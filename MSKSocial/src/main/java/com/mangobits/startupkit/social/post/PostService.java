@@ -19,4 +19,6 @@ public interface PostService {
     void saveImage(PhotoUpload photoUpload) throws Exception;
 
     List<Post> searchByNewsUrl(String newsUrl) throws Exception;
+
+    Post load(String id) throws Exception;
 }

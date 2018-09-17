@@ -123,4 +123,9 @@ public class PostServiceimpl implements PostService {
                 .appendParam("infoUrl.url", newsUrl)
                 .build());
     }
+
+    @Override
+    public Post load(String id) throws Exception {
+        return postDAO.retrieve(new Post(id));
+    }
 }
