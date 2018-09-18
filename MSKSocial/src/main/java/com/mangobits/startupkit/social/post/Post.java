@@ -70,6 +70,9 @@ public class Post {
     private InfoUrl infoUrl;
 
 
+    private Integer totalViews;
+
+
     public Post(){
     }
 
@@ -183,5 +186,13 @@ public class Post {
 
     public void setInfoUrl(InfoUrl infoUrl) {
         this.infoUrl = infoUrl;
+    }
+
+    public Integer getTotalViews() {
+        return totalViews;
+    }
+
+    public void setTotalViews(Integer totalViews) {
+        this.totalViews = totalViews;
     }
 }

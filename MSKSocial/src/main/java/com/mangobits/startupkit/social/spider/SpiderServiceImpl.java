@@ -145,7 +145,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
             Post post = new Post();
             post.setUserCreator(userService.generateCard(spider.getIdUserPostCreator()));
-            post.setStatus(PostStatusEnum.BLOCKED);
+            post.setStatus(PostStatusEnum.PENDING);
             post.setCreationDate(new Date());
             post.setDesc(infoUrl.getDesc());
             post.setInfoUrl(infoUrl);

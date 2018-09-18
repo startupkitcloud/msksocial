@@ -3,10 +3,9 @@
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesDAO.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/post/PostServiceimpl.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/SpiderServiceImpl.java
-/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/site/SiteService.java
-/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/site/Site.java
-/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/site/SiteServiceImpl.java
-/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/site/SiteDAO.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/SpiderDAO.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/Spider.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/post/PostSearch.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesRestService.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/Likes.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesService.java

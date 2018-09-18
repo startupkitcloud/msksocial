@@ -24,6 +24,10 @@ import java.util.List;
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class PostServiceimpl implements PostService {
 
+
+    private static final int TOTAL_POSTS_PAGE = 10;
+
+
     @New
     @Inject
     private PostDAO postDAO;
@@ -79,6 +83,33 @@ public class PostServiceimpl implements PostService {
     public List<Post> listPending() throws Exception {
 
         List<Post> list = this.postDAO.search((new SearchBuilder()).appendParam("status", PostStatusEnum.PENDING).build());
+
+        return list;
+    }
+
+    @Override
+    public List<Post> search(PostSearch postSearch) throws Exception {
+
+        SearchBuilder searchBuilder = new SearchBuilder();
+        searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
+        searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
+
+        //ordena
+
+        List<Post> list = this.postDAO.search(searchBuilder.build());
+
+        //atualiza todos com com view + 1
+        if(list != null){
+            for(Post post : list){
+                if(post.getTotalViews() == null){
+                    post.setTotalViews(0);
+                }
+
+                post.setTotalViews(post.getTotalViews()+1);
+                postDAO.update(post);
+            }
+        }
 
         return list;
     }
