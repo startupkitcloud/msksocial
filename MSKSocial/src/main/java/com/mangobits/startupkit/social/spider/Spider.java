@@ -1,4 +1,4 @@
-package com.mangobits.startupkit.social.spider.site;
+package com.mangobits.startupkit.social.spider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
@@ -11,9 +11,9 @@ import javax.persistence.*;
 import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Entity(name= "site")
+@Entity(name= "spider")
 @Indexed
-public class Site {
+public class Spider {
 
     @Id
     @DocumentId
@@ -49,11 +49,11 @@ public class Site {
     private String idUserPostCreator;
 
 
-    public Site() {
+    public Spider() {
     }
 
 
-    public Site(String id) {
+    public Spider(String id) {
         this.id = id;
     }
 

@@ -1,11 +1,10 @@
 package com.mangobits.startupkit.social.spider;
 
+import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.social.post.PostStatusEnum;
-import com.mangobits.startupkit.social.spider.site.Site;
-import com.mangobits.startupkit.social.spider.site.SiteService;
 import com.mangobits.startupkit.user.UserService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,6 +15,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.enterprise.inject.New;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,11 +25,7 @@ import java.util.stream.Collectors;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
-public class SpiderServiceImpl implements SpiderService {
-
-
-    @EJB
-    private SiteService siteService;
+public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider.SpiderService {
 
 
     @EJB
@@ -39,18 +36,23 @@ public class SpiderServiceImpl implements SpiderService {
     private UserService userService;
 
 
+    @New
+    @Inject
+    private SpiderDAO spiderDAO;
+
+
     @Override
     public void goSpider() throws Exception {
 
         //carrega todos os sites ativos
-        List<Site> listSites = siteService.listByStatus(SimpleStatusEnum.ACTIVE);
+        List<Spider> listSpiders = listByStatus(SimpleStatusEnum.ACTIVE);
 
         //faz a leitura
-        if(listSites != null){
-            for (Site site : listSites){
+        if(listSpiders != null){
+            for (Spider spider : listSpiders){
 
                 //busca as noticias
-                searchNews(site);
+                searchNews(spider);
 
                 //adiciona os posts
             }
@@ -59,18 +61,18 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
 
-    private List<String> searchNews(Site site) throws Exception{
+    private List<String> searchNews(Spider spider) throws Exception{
 
         List<String> list = new ArrayList<>();
         List<Post> listAdded = new ArrayList<>();
 
-        Document doc = Jsoup.connect(site.getUrl()).get();
+        Document doc = Jsoup.connect(spider.getUrl()).get();
 
         Elements els = doc.select("a[href]");
 
         if(els != null){
 
-            String patternStr = site.getUrlPatterns().stream()
+            String patternStr = spider.getUrlPatterns().stream()
                     .collect(Collectors.joining(")(?=.*", "(?=.*", ")"));
 
             List<String> itens = els.stream()
@@ -95,7 +97,7 @@ public class SpiderServiceImpl implements SpiderService {
                         InfoUrl infoUrl = analyseUrl(url);
 
                         //cria o post
-                        Post post = createPost(infoUrl, site);
+                        Post post = createPost(infoUrl, spider);
 
                         if(post != null){
                             listAdded.add(post);
@@ -136,13 +138,13 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
 
-    private Post createPost(InfoUrl infoUrl, Site site) throws Exception{
+    private Post createPost(InfoUrl infoUrl, Spider spider) throws Exception{
 
         List<Post> postsDB = postService.searchByNewsUrl(infoUrl.getUrl());
         if(postsDB == null || postsDB.size() == 0){
 
             Post post = new Post();
-            post.setUserCreator(userService.generateCard(site.getIdUserPostCreator()));
+            post.setUserCreator(userService.generateCard(spider.getIdUserPostCreator()));
             post.setStatus(PostStatusEnum.BLOCKED);
             post.setCreationDate(new Date());
             post.setDesc(infoUrl.getDesc());
@@ -156,4 +158,14 @@ public class SpiderServiceImpl implements SpiderService {
 
         return null;
     }
+
+
+
+    @Override
+    public List<Spider> listByStatus(SimpleStatusEnum status) throws Exception {
+        return spiderDAO.search(new SearchBuilder()
+                .appendParam("status", SimpleStatusEnum.ACTIVE)
+                .build());
+    }
+
 }
