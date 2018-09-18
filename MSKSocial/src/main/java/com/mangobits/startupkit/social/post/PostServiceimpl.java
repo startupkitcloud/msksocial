@@ -52,12 +52,15 @@ public class PostServiceimpl implements PostService {
     @Override
     public void save(Post post) throws Exception {
 
+        if(post.getStatus() == null){
+            post.setStatus(PostStatusEnum.ACTIVE);
+        }
+
         if(post.getId() == null){
             post.setCreationDate(new Date());
-            post.setStatus(PostStatusEnum.ACTIVE);
             postDAO.insert(post);
         }else {
-            new BusinessUtils<Post>(postDAO).basicSave(post);
+            new BusinessUtils<>(postDAO).basicSave(post);
         }
 
     }

@@ -62,6 +62,7 @@ public class SpiderServiceImpl implements SpiderService {
     private List<String> searchNews(Site site) throws Exception{
 
         List<String> list = new ArrayList<>();
+        List<Post> listAdded = new ArrayList<>();
 
         Document doc = Jsoup.connect(site.getUrl()).get();
 
@@ -82,11 +83,24 @@ public class SpiderServiceImpl implements SpiderService {
 
             if(itens != null){
                 for(String url : itens){
-                    //check se ja nao foi processado
-                    InfoUrl infoUrl = analyseUrl(url);
 
-                    //cria o post
-                    createPost(infoUrl, site);
+                    Post postAdded = listAdded.stream()
+                            .filter(p -> p.getInfoUrl().getUrl().equals(url))
+                            .findFirst()
+                            .orElse(null);
+
+                    if(postAdded == null){
+
+                        //check se ja nao foi processado
+                        InfoUrl infoUrl = analyseUrl(url);
+
+                        //cria o post
+                        Post post = createPost(infoUrl, site);
+
+                        if(post != null){
+                            listAdded.add(post);
+                        }
+                    }
                 }
             }
         }
@@ -122,7 +136,7 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
 
-    private void createPost(InfoUrl infoUrl, Site site) throws Exception{
+    private Post createPost(InfoUrl infoUrl, Site site) throws Exception{
 
         List<Post> postsDB = postService.searchByNewsUrl(infoUrl.getUrl());
         if(postsDB == null || postsDB.size() == 0){
@@ -136,6 +150,10 @@ public class SpiderServiceImpl implements SpiderService {
             post.setType("NEWS");
 
             postService.save(post);
+
+            return post;
         }
+
+        return null;
     }
 }
