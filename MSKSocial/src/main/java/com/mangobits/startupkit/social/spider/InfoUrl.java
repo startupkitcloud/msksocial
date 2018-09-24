@@ -21,6 +21,9 @@ public class InfoUrl {
 	
 	private String desc;
 
+
+	private String siteName;
+
 	
 	public String getUrl() {
 		return url;
@@ -52,5 +55,14 @@ public class InfoUrl {
 
 	public void setDesc(String descricao) {
 		this.desc = descricao;
+	}
+
+
+	public String getSiteName() {
+		return siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
 	}
 }
