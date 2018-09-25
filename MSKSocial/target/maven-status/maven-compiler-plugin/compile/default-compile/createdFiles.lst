@@ -1,6 +1,7 @@
 com/mangobits/startupkit/social/like/LikesRestService.class
 com/mangobits/startupkit/social/post/PostRestService.class
 com/mangobits/startupkit/social/like/LikesDAO.class
+com/mangobits/startupkit/social/post/PostTypeEnum.class
 com/mangobits/startupkit/social/post/PostServiceimpl.class
 com/mangobits/startupkit/social/post/PostService.class
 com/mangobits/startupkit/social/like/LikesService.class
@@ -15,5 +16,7 @@ com/mangobits/startupkit/social/like/Likes.class
 com/mangobits/startupkit/social/post/PostSearch.class
 com/mangobits/startupkit/social/spider/SpiderDAO.class
 com/mangobits/startupkit/social/like/Like.class
+com/mangobits/startupkit/social/comment/Comment.class
+com/mangobits/startupkit/social/post/PostInfo.class
 com/mangobits/startupkit/social/spider/InfoUrl.class
 com/mangobits/startupkit/social/post/PostStatusEnum.class
