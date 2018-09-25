@@ -22,11 +22,13 @@ public class Spider {
     private String id;
 
 
-
     private String name;
 
 
     private String url;
+
+
+    private String urlBase;
 
 
     @Field
@@ -120,5 +122,13 @@ public class Spider {
 
     public void setIdUserPostCreator(String idUserPostCreator) {
         this.idUserPostCreator = idUserPostCreator;
+    }
+
+    public String getUrlBase() {
+        return urlBase;
+    }
+
+    public void setUrlBase(String urlBase) {
+        this.urlBase = urlBase;
     }
 }

@@ -65,47 +65,53 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
     private List<String> searchNews(Spider spider) throws Exception{
 
         List<String> list = new ArrayList<>();
-        List<Post> listAdded = new ArrayList<>();
 
-        Document doc = Jsoup.connect(spider.getUrl()).get();
+        try {
+            List<Post> listAdded = new ArrayList<>();
 
-        Elements els = doc.select("a[href]");
+            Document doc = Jsoup.connect(spider.getUrl()).get();
 
-        if(els != null){
+            Elements els = doc.select("a[href]");
 
-            String patternStr = spider.getUrlPatterns().stream()
-                    .collect(Collectors.joining(")(?=.*", "(?=.*", ")"));
+            if(els != null){
 
-            List<String> itens = els.stream()
-                    .filter(element -> {
-                        Pattern pattern = Pattern.compile(patternStr);
-                        return pattern.matcher(element.attr("href")).find();
-                    })
-                    .map(p -> p.attr("href"))
-                    .collect(Collectors.toList());
+                String patternStr = spider.getUrlPatterns().stream()
+                        .collect(Collectors.joining(")(?=.*", "(?=.*", ")"));
 
-            if(itens != null){
-                for(String url : itens){
+                List<String> itens = els.stream()
+                        .filter(element -> {
+                            Pattern pattern = Pattern.compile(patternStr);
+                            return pattern.matcher(element.attr("href")).find();
+                        })
+                        .map(p -> p.attr("href"))
+                        .collect(Collectors.toList());
 
-                    Post postAdded = listAdded.stream()
-                            .filter(p -> p.getInfoUrl().getUrl().equals(url))
-                            .findFirst()
-                            .orElse(null);
+                if(itens != null){
+                    for(String url : itens){
 
-                    if(postAdded == null){
+                        Post postAdded = listAdded.stream()
+                                .filter(p -> p.getInfoUrl().getUrl().equals(url))
+                                .findFirst()
+                                .orElse(null);
 
-                        //check se ja nao foi processado
-                        InfoUrl infoUrl = analyseUrl(url);
+                        if(postAdded == null){
 
-                        //cria o post
-                        Post post = createPost(infoUrl, spider);
+                            //check se ja nao foi processado
+                            InfoUrl infoUrl = analyseUrl(spider, url);
 
-                        if(post != null){
-                            listAdded.add(post);
+                            //cria o post
+                            Post post = createPost(infoUrl, spider);
+
+                            if(post != null){
+                                listAdded.add(post);
+                            }
                         }
                     }
                 }
             }
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
 
         return list;
@@ -113,11 +119,16 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
 
 
-    private InfoUrl analyseUrl(String url) throws Exception {
+    private InfoUrl analyseUrl(Spider spider, String url) throws Exception {
 
         InfoUrl infoUrl = new InfoUrl();
 
+        if(url.indexOf("http") == -1){
+            url = spider.getUrlBase() + url;
+        }
+
         Document doc = Jsoup.connect(url).get();
+
         Element elTitle = doc.select("meta[name=title]").first();
 
         if(elTitle != null){
@@ -134,6 +145,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
         }
 
         infoUrl.setUrl(url);
+        infoUrl.setSiteName(spider.getName());
 
         return infoUrl;
     }
