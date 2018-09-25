@@ -10,8 +10,12 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.notification.email.EmailService;
 import com.mangobits.startupkit.service.admin.util.SecuredAdmin;
+import com.mangobits.startupkit.social.like.Like;
+import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
+import com.mangobits.startupkit.user.User;
+import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
 import com.mangobits.startupkit.ws.JsonContainer;
@@ -33,6 +37,10 @@ public class PostRestService  extends UserBaseRestService {
 
     @EJB
     private PostService postService;
+
+
+    @EJB
+    private UserService userService;
 
     @EJB
     private ConfigurationService configurationService;
@@ -164,7 +172,7 @@ public class PostRestService  extends UserBaseRestService {
     }
 
 
-    @SecuredAdmin
+    @SecuredUser
     @GET
     @Path("/changeStatus/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -175,11 +183,16 @@ public class PostRestService  extends UserBaseRestService {
 
         try {
 
-            postService.changeStatus(id);
+            User user = getUserTokenSession();
+            if (user == null){
+                throw new BusinessException("user_not_found");
+            }
+
+            postService.changeStatus(id, user.getId());
             cont.setData("OK");
 
         } catch (Exception e) {
-            handleException(cont, e, "changing cultivation status");
+            handleException(cont, e, "changing post status");
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -187,6 +200,33 @@ public class PostRestService  extends UserBaseRestService {
 
         return resultStr;
     }
+
+//    @SecuredAdmin
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/changePostNewsStatus")
+    public String changePostNewsStatus(Post post)  throws Exception{
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.changePostNewsStatus(post);
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "changing post news status");
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
 
     @GET
     @Path("/image/{idPost}/{imageType}")
@@ -247,6 +287,40 @@ public class PostRestService  extends UserBaseRestService {
         } catch (Exception e) {
             handleException(cont, e, "saving post image");
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredUser
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/like")
+    public String like(Like like)  throws Exception{
+
+        String resultStr = null;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.like(like);
+            cont.setDesc("OK");
+
+        } catch (Exception e) {
+
+            if(!(e instanceof BusinessException)){
+                e.printStackTrace();
+            }
+
+            cont.setSuccess(false);
+            cont.setDesc(e.getMessage());
+
+            emailService.sendEmailError(e);
+        }
+
 
         ObjectMapper mapper = new ObjectMapper();
         resultStr = mapper.writeValueAsString(cont);

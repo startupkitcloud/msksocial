@@ -5,6 +5,7 @@ import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.social.post.PostStatusEnum;
+import com.mangobits.startupkit.social.post.PostTypeEnum;
 import com.mangobits.startupkit.user.UserService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -149,7 +150,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             post.setCreationDate(new Date());
             post.setDesc(infoUrl.getDesc());
             post.setInfoUrl(infoUrl);
-            post.setType("NEWS");
+            post.setType(PostTypeEnum.NEWS);
 
             postService.save(post);
 

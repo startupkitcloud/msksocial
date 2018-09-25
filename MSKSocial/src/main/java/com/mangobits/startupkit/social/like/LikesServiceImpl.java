@@ -24,13 +24,13 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public void like(Like like) throws ApplicationException, BusinessException {
+    public Boolean like(Like like) throws Exception {
 
-        try {
 
             //trata o objeto que foi curtido
             Likes likesLiked = likesDAO.retrieve(new Likes(like.getIdObjectLiked()));
             boolean insertLiked = false;
+            boolean remove = false;
 
             if(likesLiked == null){
                 likesLiked = new Likes();
@@ -49,9 +49,11 @@ public class LikesServiceImpl implements LikesService {
 
             if(likedDB == null){
                 likesLiked.getListLikesMe().add(like);
+                remove = false;
             }
             else{
                 likesLiked.getListLikesMe().remove(likedDB);
+                remove = true;
             }
 
             if(insertLiked){
@@ -94,30 +96,25 @@ public class LikesServiceImpl implements LikesService {
             else{
                 likesDAO.update(likesLiker);
             }
-        }
-        catch (Exception e){
-            throw new ApplicationException("got an error executing a like", e);
-        }
+
+            return remove;
     }
 
 
 
     @Override
-    public List<? extends Like> listLikesMe(String idObject) throws BusinessException, ApplicationException {
+    public List<? extends Like> listLikesMe(String idObject) throws Exception {
 
         List<Like> list = new ArrayList<>();
 
-        try {
 
             Likes likes = likesDAO.retrieve(new Likes(idObject));
 
             if(likes != null){
                 list = likes.getListLikesMe();
             }
-        }
-        catch(Exception e){
-            throw new ApplicationException("got an error listing likes me", e);
-        }
+
+
 
         return list;
     }
@@ -126,21 +123,15 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public List<? extends Like> listILike(String idObject) throws BusinessException, ApplicationException {
+    public List<? extends Like> listILike(String idObject) throws Exception {
 
         List<? extends Like> list = new ArrayList<>();
-
-        try {
 
             Likes likes = likesDAO.retrieve(new Likes(idObject));
 
             if(likes != null){
                 list = likes.getListILike();
             }
-        }
-        catch(Exception e){
-            throw new ApplicationException("got an error listing I like", e);
-        }
 
         return list;
     }

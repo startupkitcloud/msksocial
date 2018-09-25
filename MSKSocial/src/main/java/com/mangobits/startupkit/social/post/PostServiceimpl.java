@@ -4,11 +4,16 @@ package com.mangobits.startupkit.social.post;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
+import com.mangobits.startupkit.core.dao.SearchProjection;
+import com.mangobits.startupkit.core.exception.ApplicationException;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
+import com.mangobits.startupkit.social.like.Like;
+import com.mangobits.startupkit.social.like.Likes;
+import com.mangobits.startupkit.social.like.LikesService;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -36,10 +41,21 @@ public class PostServiceimpl implements PostService {
     @EJB
     private ConfigurationService configurationService;
 
+    @EJB
+    private LikesService likesService;
+
     @Override
-    public void changeStatus(String idPost) throws Exception {
+    public void changeStatus(String idPost, String idUser) throws Exception {
 
         Post post = retrieve(idPost);
+
+        if (post == null){
+            throw new BusinessException("post_not_found");
+        }
+
+        if (!post.getUserCreator().getId().equals(idUser)){
+            throw new BusinessException("user_must_be_creator");
+        }
 
         if(post.getStatus().equals(PostStatusEnum.ACTIVE)){
             post.setStatus(PostStatusEnum.BLOCKED);
@@ -50,6 +66,35 @@ public class PostServiceimpl implements PostService {
 
         save(post);
 
+    }
+
+    @Override
+    public void changePostNewsStatus(Post post) throws Exception {
+
+        if(post.getId() == null){
+            throw new BusinessException("missing_post_id");
+        }
+
+        if(post.getType() == null){
+            throw new BusinessException("missing_post_type");
+        }
+
+        if(post.getType() != PostTypeEnum.NEWS){
+            throw new BusinessException("post_type_must_be_news");
+        }
+
+        if(post.getStatus() == null){
+            throw new BusinessException("missing_post_status");
+        }
+
+        Post postBase = postDAO.retrieve(new Post(post.getId()));
+
+        if(postBase == null){
+            throw new BusinessException("post_not_found");
+        }
+
+        postBase.setStatus(post.getStatus());
+        postDAO.update(postBase);
 
     }
 
@@ -94,6 +139,8 @@ public class PostServiceimpl implements PostService {
         searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
+
+        searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
 
         //ordena
 
@@ -170,4 +217,41 @@ public class PostServiceimpl implements PostService {
     public Post load(String id) throws Exception {
         return postDAO.retrieve(new Post(id));
     }
+
+    @Override
+    public void like(Like like) throws Exception {
+
+        if (like.getIdObjectLiked() == null){
+            throw new BusinessException("missing_object_liked");
+        }
+        if (like.getIdObjectLiker() == null){
+            throw new BusinessException("missing_object_liker");
+        }
+
+        if (like.getTypeObjectLiked().equals("POST")){
+
+            Boolean remove = likesService.like(like);
+
+            Post post = postDAO.retrieve(new Post(like.getIdObjectLiked()));
+
+            if (post == null){
+                throw new BusinessException("post_not_found");
+            }
+
+            if (remove){
+
+                if (post.getLikes() == null || post.getLikes() == 0){
+                    post.setLikes(0);
+                }
+
+            }else {
+                post.setLikes(post.getLikes() + 1);
+            }
+
+            new BusinessUtils<>(postDAO).basicSave(post);
+
+        }
+
+    }
+
 }

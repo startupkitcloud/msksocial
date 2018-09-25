@@ -1,6 +1,7 @@
 package com.mangobits.startupkit.social.post;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.spider.InfoUrl;
@@ -54,7 +55,6 @@ public class Post {
     private Integer comments;
 
 
-    private String type;
 
 
     @ElementCollection(fetch=FetchType.EAGER)
@@ -66,11 +66,19 @@ public class Post {
     private PostStatusEnum status;
 
 
+    @Field
+    @Enumerated(EnumType.STRING)
+    private PostTypeEnum type;
+
+
     @IndexedEmbedded
     private InfoUrl infoUrl;
 
 
     private Integer totalViews;
+
+
+    private AddressInfo address;
 
 
     public Post(){
@@ -164,13 +172,6 @@ public class Post {
         this.comments = comments;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public List<GalleryItem> getGallery() {
         return gallery;
@@ -194,5 +195,22 @@ public class Post {
 
     public void setTotalViews(Integer totalViews) {
         this.totalViews = totalViews;
+    }
+
+    public AddressInfo getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressInfo address) {
+        this.address = address;
+    }
+
+
+    public PostTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(PostTypeEnum type) {
+        this.type = type;
     }
 }

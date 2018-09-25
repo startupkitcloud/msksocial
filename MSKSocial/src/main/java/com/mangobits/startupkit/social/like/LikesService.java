@@ -11,11 +11,11 @@ import java.util.List;
 public interface LikesService {
 
 
-	void like(Like like) throws ApplicationException, BusinessException;
+	Boolean like(Like like) throws Exception;
 
 
-	List<? extends Like> listLikesMe(String idObject) throws BusinessException, ApplicationException;
+	List<? extends Like> listLikesMe(String idObject) throws Exception;
 
 
-	List<? extends Like> listILike(String idObject) throws BusinessException, ApplicationException;
+	List<? extends Like> listILike(String idObject) throws Exception;
 }
