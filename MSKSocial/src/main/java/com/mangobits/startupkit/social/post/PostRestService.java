@@ -10,6 +10,7 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.notification.email.EmailService;
 import com.mangobits.startupkit.service.admin.util.SecuredAdmin;
+import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.Post;
@@ -201,7 +202,36 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
-//    @SecuredAdmin
+    @SecuredUser
+    @GET
+    @Path("/favorite/{idPost}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String favorite(@PathParam("idPost") String idPost) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            User user = getUserTokenSession();
+            if (user == null){
+                throw new BusinessException("user_not_found");
+            }
+
+            postService.favorite(idPost, user.getId());
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "making post favorite");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredAdmin
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -307,6 +337,79 @@ public class PostRestService  extends UserBaseRestService {
         try {
 
             postService.like(like);
+            cont.setDesc("OK");
+
+        } catch (Exception e) {
+
+            if(!(e instanceof BusinessException)){
+                e.printStackTrace();
+            }
+
+            cont.setSuccess(false);
+            cont.setDesc(e.getMessage());
+
+            emailService.sendEmailError(e);
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredUser
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/addComment")
+    public String addComment(Comment comment)  throws Exception{
+
+        String resultStr = null;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.addComment(comment);
+            cont.setDesc("OK");
+
+        } catch (Exception e) {
+
+            if(!(e instanceof BusinessException)){
+                e.printStackTrace();
+            }
+
+            cont.setSuccess(false);
+            cont.setDesc(e.getMessage());
+
+            emailService.sendEmailError(e);
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredUser
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/removeComment")
+    public String removeComment(Comment comment)  throws Exception{
+
+        String resultStr = null;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            User user = getUserTokenSession();
+            if (user == null){
+                throw new BusinessException("user_not_found");
+            }
+
+            postService.removeComment(comment, user.getId());
             cont.setDesc("OK");
 
         } catch (Exception e) {

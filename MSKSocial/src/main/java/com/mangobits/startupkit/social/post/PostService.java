@@ -1,7 +1,9 @@
 package com.mangobits.startupkit.social.post;
 
 import com.mangobits.startupkit.core.photo.PhotoUpload;
+import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
+import com.mangobits.startupkit.social.postInfo.PostInfo;
 
 import javax.ejb.Local;
 import java.util.List;
@@ -31,4 +33,10 @@ public interface PostService {
     Post load(String id) throws Exception;
 
     void like(Like like) throws Exception;
+
+    void removeComment(Comment comment, String idUser) throws Exception;
+
+    void addComment(Comment comment) throws Exception;
+
+    Boolean favorite (String idPost, String idUser) throws Exception;
 }

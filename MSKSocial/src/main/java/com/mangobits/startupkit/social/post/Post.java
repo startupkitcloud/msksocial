@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
+import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.user.UserCard;
 import org.hibernate.annotations.GenericGenerator;
@@ -51,10 +52,20 @@ public class Post {
 
     private Integer distance;
 
-
     private Integer comments;
 
 
+    @Transient
+    private Boolean fgLiked;
+
+    @Transient
+    private Boolean fgFavorite;
+
+
+
+
+    @Transient
+    private List<Comment> lastComments;
 
 
     @ElementCollection(fetch=FetchType.EAGER)
@@ -212,5 +223,29 @@ public class Post {
 
     public void setType(PostTypeEnum type) {
         this.type = type;
+    }
+
+    public List<Comment> getLastComments() {
+        return lastComments;
+    }
+
+    public Boolean getFgLiked() {
+        return fgLiked;
+    }
+
+    public void setFgLiked(Boolean fgLiked) {
+        this.fgLiked = fgLiked;
+    }
+
+    public Boolean getFgFavorite() {
+        return fgFavorite;
+    }
+
+    public void setFgFavorite(Boolean fgFavorite) {
+        this.fgFavorite = fgFavorite;
+    }
+
+    public void setLastComments(List<Comment> lastComments) {
+        this.lastComments = lastComments;
     }
 }
