@@ -22,6 +22,9 @@ import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
 import javafx.geometry.Pos;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.hibernate.search.spatial.DistanceSortField;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -29,10 +32,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -259,6 +259,8 @@ public class PostServiceimpl implements PostService {
         searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        searchBuilder.setSort(sort);
 
 //        searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
 
