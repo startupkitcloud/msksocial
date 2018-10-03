@@ -15,6 +15,8 @@ import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
+import com.mangobits.startupkit.social.userFavorites.UserFavorites;
+import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.util.SecuredUser;
@@ -29,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Stateless
@@ -41,7 +44,7 @@ public class PostRestService  extends UserBaseRestService {
 
 
     @EJB
-    private UserService userService;
+    private UserFavoritesService userFavoritesService;
 
     @EJB
     private ConfigurationService configurationService;
@@ -223,6 +226,31 @@ public class PostRestService  extends UserBaseRestService {
 
         } catch (Exception e) {
             handleException(cont, e, "making post favorite");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredUser
+    @GET
+    @Path("/listFavorites/{idUser}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listFavorites(@PathParam("idUser") String idUser) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            UserFavorites userFavorites = userFavoritesService.load(idUser);
+            List<Post> list = new ArrayList<>();
+            list = userFavorites.getListFavorites();
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "listing favorites");
         }
 
         ObjectMapper mapper = new ObjectMapper();

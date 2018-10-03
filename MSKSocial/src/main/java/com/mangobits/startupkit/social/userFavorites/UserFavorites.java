@@ -1,6 +1,7 @@
 package com.mangobits.startupkit.social.userFavorites;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mangobits.startupkit.social.post.Post;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -25,7 +26,7 @@ public class UserFavorites {
 
     @IndexedEmbedded
     @ElementCollection(fetch= FetchType.EAGER)
-    private List<String> listFavorites;
+    private List<Post> listFavorites;
 
 
     public String getId() {
@@ -36,11 +37,11 @@ public class UserFavorites {
         this.id = id;
     }
 
-    public List<String> getListFavorites() {
+    public List<Post> getListFavorites() {
         return listFavorites;
     }
 
-    public void setListFavorites(List<String> listFavorites) {
+    public void setListFavorites(List<Post> listFavorites) {
         this.listFavorites = listFavorites;
     }
 

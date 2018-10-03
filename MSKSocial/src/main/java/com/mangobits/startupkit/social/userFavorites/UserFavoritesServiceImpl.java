@@ -1,5 +1,11 @@
 package com.mangobits.startupkit.social.userFavorites;
 
+import com.mangobits.startupkit.core.exception.BusinessException;
+import com.mangobits.startupkit.social.like.LikesService;
+import com.mangobits.startupkit.social.post.Post;
+import com.mangobits.startupkit.social.post.PostService;
+
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -15,36 +21,41 @@ public class UserFavoritesServiceImpl implements UserFavoritesService {
     @New
     private UserFavoritesDAO userFavoritesDAO;
 
-
+    @EJB
+    private PostService postService;
 
     @Override
     public Boolean favoritePost(String idPost, String idUser) throws Exception {
 
         Boolean remove = false;
         UserFavorites userFavorites = retrieve(idUser);
+        Post post = postService.retrieve(idPost);
+        if (post == null){
+            throw new BusinessException("post_not_found");
+        }
 
         if (userFavorites == null){
             userFavorites = new UserFavorites();
             userFavorites.setId(idUser);
             userFavorites.setListFavorites(new ArrayList<>());
-            userFavorites.getListFavorites().add(idPost);
+            userFavorites.getListFavorites().add(post);
             userFavoritesDAO.insert(userFavorites);
         }else {
             if (userFavorites.getListFavorites() == null){
                 userFavorites.setListFavorites(new ArrayList<>());
-                userFavorites.getListFavorites().add(idPost);
+                userFavorites.getListFavorites().add(post);
             }else {
 
-                String idPostBase = userFavorites.getListFavorites().stream()
-                        .filter(p -> p.equals(idPost))
+                Post postBase = userFavorites.getListFavorites().stream()
+                        .filter(p -> p.getId().equals(idPost))
                         .findFirst()
                         .orElse(null);
 
-                if (idPostBase != null){
-                    userFavorites.getListFavorites().remove(idPost);
+                if (postBase != null){
+                    userFavorites.getListFavorites().remove(postBase);
                     remove = true;
                 }else {
-                    userFavorites.getListFavorites().add(idPost);
+                    userFavorites.getListFavorites().add(post);
                 }
             }
 

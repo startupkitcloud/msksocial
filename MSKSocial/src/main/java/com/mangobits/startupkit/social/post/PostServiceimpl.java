@@ -299,9 +299,9 @@ public class PostServiceimpl implements PostService {
                     }
 
                     // verifica se o post foi favoritado
-                    List<String> listIdPostFavorite = listIdPostFavorite(postSearch.getIdUser());
-                    String postFavorited = listIdPostFavorite.stream()
-                            .filter(p -> p.equals(post.getId()))
+                    List<Post> listPostFavorite = listPostFavorite(postSearch.getIdUser());
+                    Post postFavorited = listPostFavorite.stream()
+                            .filter(p -> p.getId().equals(post.getId()))
                             .findFirst()
                             .orElse(null);
 
@@ -446,16 +446,16 @@ public class PostServiceimpl implements PostService {
     }
 
 
-    private List<String> listIdPostFavorite(String idUser) throws Exception {
+    private List<Post> listPostFavorite(String idUser) throws Exception {
 
         UserFavorites userFavorites =  userFavoritesService.load(idUser);
-        List<String> listIdPosts = new ArrayList<>();
+        List<Post> list = new ArrayList<>();
 
         if (userFavorites != null && userFavorites.getListFavorites() != null) {
-            listIdPosts = userFavorites.getListFavorites();
+            list = userFavorites.getListFavorites();
         }
 
-        return listIdPosts;
+        return list;
 
     }
 
