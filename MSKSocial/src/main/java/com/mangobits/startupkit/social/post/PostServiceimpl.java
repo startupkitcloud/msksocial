@@ -459,4 +459,32 @@ public class PostServiceimpl implements PostService {
 
     }
 
+    @Override
+    public List<Post> listFavorites(String idUser) throws Exception {
+
+        List<Post> list = listPostFavorite(idUser);
+
+        // verifica se o post foi curtido
+        List<String> listIdPostLiked = listIdPostLiked(idUser);
+
+        for (Post post : list){
+
+            String postLiked = listIdPostLiked.stream()
+                    .filter(p -> p.equals(post.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (postLiked != null) {
+                post.setFgLiked(true);
+            }else {
+                post.setFgLiked(false);
+            }
+
+            post.setFgFavorite(true);
+        }
+
+        return list;
+
+    }
+
 }

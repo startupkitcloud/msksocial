@@ -39,4 +39,6 @@ public interface PostService {
     void addComment(Comment comment) throws Exception;
 
     Boolean favorite (String idPost, String idUser) throws Exception;
+
+    List<Post> listFavorites(String idUser) throws Exception;
 }

@@ -244,9 +244,7 @@ public class PostRestService  extends UserBaseRestService {
         JsonContainer cont = new JsonContainer();
 
         try {
-            UserFavorites userFavorites = userFavoritesService.load(idUser);
-            List<Post> list = new ArrayList<>();
-            list = userFavorites.getListFavorites();
+            List<Post> list = postService.listFavorites(idUser);
             cont.setData(list);
 
         } catch (Exception e) {
