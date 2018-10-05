@@ -15,6 +15,8 @@ import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
+import com.mangobits.startupkit.social.postInfo.PostInfo;
+import com.mangobits.startupkit.social.postInfo.PostInfoService;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
@@ -41,6 +43,9 @@ public class PostRestService  extends UserBaseRestService {
 
     @EJB
     private PostService postService;
+
+    @EJB
+    private PostInfoService postInfoService;
 
 
     @EJB
@@ -450,6 +455,29 @@ public class PostRestService  extends UserBaseRestService {
             emailService.sendEmailError(e);
         }
 
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredUser
+    @GET
+    @Path("/listAllCommentsByPost/{idPost}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listAllCommentsByPost(@PathParam("idPost") String idPost) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            List<Comment> list = postInfoService.listActiveComments(idPost);
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "loading postInfo");
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         resultStr = mapper.writeValueAsString(cont);
