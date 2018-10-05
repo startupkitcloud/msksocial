@@ -25,11 +25,15 @@ public class PostInfoServiceImpl implements PostInfoService{
 
         PostInfo postInfo =  postInfoDAO.retrieve(new PostInfo(idPost));
 
-        if (postInfo == null){
+        if (postInfo == null) {
             postInfo = new PostInfo();
             postInfo.setId(idPost);
-            postInfo.setListBlockedComments(new ArrayList<>());
+        }
+        if (postInfo.getListActiveComments() == null){
             postInfo.setListActiveComments(new ArrayList<>());
+        }
+        if (postInfo.getListBlockedComments() == null){
+            postInfo.setListBlockedComments(new ArrayList<>());
         }
 
         return postInfo;
@@ -38,7 +42,7 @@ public class PostInfoServiceImpl implements PostInfoService{
     @Override
     public List<Comment> listActiveComments(String idPost) throws Exception {
 
-        PostInfo postInfo =  postInfoDAO.retrieve(new PostInfo(idPost));
+        PostInfo postInfo =  retrieve(idPost);
         return postInfo.getListActiveComments();
     }
 
