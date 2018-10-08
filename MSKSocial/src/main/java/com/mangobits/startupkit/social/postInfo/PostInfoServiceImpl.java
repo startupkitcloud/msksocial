@@ -1,8 +1,6 @@
 package com.mangobits.startupkit.social.postInfo;
 
 import com.mangobits.startupkit.social.comment.Comment;
-import com.mangobits.startupkit.social.post.Post;
-import com.mangobits.startupkit.social.post.PostDAO;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -42,8 +40,12 @@ public class PostInfoServiceImpl implements PostInfoService{
     @Override
     public List<Comment> listActiveComments(String idPost) throws Exception {
 
-        PostInfo postInfo =  retrieve(idPost);
-        return postInfo.getListActiveComments();
+//        PostInfo postInfo =  retrieve(idPost);
+//        return postInfo.getListActiveComments();
+
+        List<Comment> list = postInfoDAO.listActiveComments(idPost, 70);
+        return list;
+
     }
 
 }
