@@ -46,11 +46,12 @@ public class Post {
 
     private Integer views;
 
-
+    @Transient
     private Integer time;
 
-
+    @Transient
     private Integer distance;
+
 
     private Integer comments;
 

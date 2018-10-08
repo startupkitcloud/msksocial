@@ -33,6 +33,7 @@ import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -277,6 +278,15 @@ public class PostServiceimpl implements PostService {
 
                 post.setTotalViews(post.getTotalViews()+1);
                 postDAO.update(post);
+
+                Date creationDate = post.getCreationDate();
+                Date now = new Date();
+
+                long diff = now.getTime() - creationDate.getTime();
+//                long diffMinutes = diff / (60 * 1000) % 60;
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                Integer i = (int) (long) minutes;
+                post.setTime(i);
 
                 //chamar o dao que faz o aggregate e retorna uma lista
                 List<Comment> comments = postInfoDAO.listActiveComments(post.getId(), 3);
