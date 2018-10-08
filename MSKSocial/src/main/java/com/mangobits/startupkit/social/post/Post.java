@@ -3,7 +3,6 @@ package com.mangobits.startupkit.social.post;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.photo.GalleryItem;
-import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.user.UserCard;
@@ -62,7 +61,8 @@ public class Post {
     @Transient
     private Boolean fgFavorite;
 
-
+    @ElementCollection(fetch=FetchType.EAGER)
+    private List<String> listTags;
 
 
     @Transient
@@ -248,5 +248,14 @@ public class Post {
 
     public void setLastComments(List<Comment> lastComments) {
         this.lastComments = lastComments;
+    }
+
+
+    public List<String> getListTags() {
+        return listTags;
+    }
+
+    public void setListTags(List<String> listTags) {
+        this.listTags = listTags;
     }
 }
