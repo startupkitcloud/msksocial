@@ -164,7 +164,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             post.setInfoUrl(infoUrl);
             post.setType(PostTypeEnum.NEWS);
 
-            postService.save(post);
+            postService.save(post, false);
 
             return post;
         }

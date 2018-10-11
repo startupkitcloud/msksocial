@@ -1,16 +1,17 @@
-package com.mangobits.startupkit.social.post;
+package com.mangobits.startupkit.social.group;
 
-public class PostSearch {
+public class GroupSearch {
 
     private String idUser;
-
-    private String queryString;
 
     private Double lat;
 
     private Double log;
 
     private Integer page;
+
+
+    private String queryString;
 
 
     public String getIdUser() {
@@ -53,4 +54,5 @@ public class PostSearch {
     public void setQueryString(String queryString) {
         this.queryString = queryString;
     }
+
 }

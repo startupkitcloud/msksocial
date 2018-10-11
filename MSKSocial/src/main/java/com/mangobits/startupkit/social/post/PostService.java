@@ -16,7 +16,7 @@ public interface PostService {
     void changePostNewsStatus(Post post) throws Exception;
 
 
-    void save(Post post) throws Exception;
+    void save(Post post, Boolean sendGroupMessage) throws Exception;
 
     List<Post> listAll() throws Exception;
 

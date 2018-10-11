@@ -69,7 +69,7 @@ public class PostRestService  extends UserBaseRestService {
 
         try {
 
-            postService.save(post);
+            postService.save(post, true);
             cont.setData(post);
 
         } catch (Exception e) {
@@ -146,7 +146,7 @@ public class PostRestService  extends UserBaseRestService {
             cont.setData(list);
 
         } catch (Exception e) {
-            handleException(cont, e, "searching a post");
+            handleException(cont, e, "searching posts");
         }
 
 

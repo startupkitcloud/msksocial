@@ -12,7 +12,13 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
+import com.mangobits.startupkit.notification.NotificationBuilder;
+import com.mangobits.startupkit.notification.NotificationService;
+import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
 import com.mangobits.startupkit.social.comment.Comment;
+import com.mangobits.startupkit.social.group.Group;
+import com.mangobits.startupkit.social.group.GroupService;
+import com.mangobits.startupkit.social.group.UserGroup;
 import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.like.Likes;
 import com.mangobits.startupkit.social.like.LikesService;
@@ -21,15 +27,14 @@ import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
+import com.mangobits.startupkit.user.UserService;
 import javafx.geometry.Pos;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.search.spatial.DistanceSortField;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
+import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.*;
@@ -59,7 +64,16 @@ public class PostServiceimpl implements PostService {
     private LikesService likesService;
 
     @EJB
+    private GroupService groupService;
+
+    @EJB
+    private UserService userService;
+
+    @EJB
     private UserFavoritesService userFavoritesService;
+
+    @EJB
+    private NotificationService notificationService;
 
 
 
@@ -83,7 +97,7 @@ public class PostServiceimpl implements PostService {
             post.setStatus(PostStatusEnum.ACTIVE);
         }
 
-        save(post);
+        save(post, false);
 
     }
 
@@ -118,7 +132,7 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
-    public void save(Post post) throws Exception {
+    public void save(Post post, Boolean sendGroupMessage) throws Exception {
 
         if(post.getStatus() == null){
             post.setStatus(PostStatusEnum.ACTIVE);
@@ -127,8 +141,33 @@ public class PostServiceimpl implements PostService {
         if(post.getId() == null){
             post.setCreationDate(new Date());
             postDAO.insert(post);
+
+            if (post.getIdGroup() != null && sendGroupMessage){
+                sendGroupMessage(post.getIdGroup(), post.getId());
+            }
         }else {
             new BusinessUtils<>(postDAO).basicSave(post);
+        }
+
+    }
+
+
+    @Asynchronous
+    private void sendGroupMessage(String idGroup, String idPost) throws Exception{
+
+        Group group = groupService.load(idGroup);
+
+        if (group == null){
+            throw new BusinessException("group_not_found");
+
+        }
+        if (group.getListUsers() != null){
+
+            for (UserGroup userGroup : group.getListUsers()){
+                User user = userService.retrieve(userGroup.getIdUser());
+                sendNotification(user, group.getTitle(), idPost, "Publicou um post", "GROUP_POST");
+
+            }
         }
 
     }
@@ -258,6 +297,9 @@ public class PostServiceimpl implements PostService {
 
         SearchBuilder searchBuilder = new SearchBuilder();
         searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
+        if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
+            searchBuilder.appendParam("title|desc", postSearch.getQueryString());
+        }
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
@@ -497,6 +539,16 @@ public class PostServiceimpl implements PostService {
 
     }
 
+    private void sendNotification(User user, String title, String link, String msg, String type) throws Exception {
+        notificationService.sendNotification(new NotificationBuilder()
+                .setTo(user)
+                .setTypeSending(TypeSendingNotificationEnum.APP)
+                .setTypeFrom(type)
+                .setTitle(title)
+                .setIdLink(link)
+                .setMessage(msg)
+                .build());
+    }
 
 
 }

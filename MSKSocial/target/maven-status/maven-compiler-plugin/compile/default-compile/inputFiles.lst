@@ -1,11 +1,15 @@
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/InfoUrl.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/postInfo/PostInfoService.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/SpiderServiceImpl.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/GroupServiceImpl.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/postInfo/PostInfo.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/Group.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/SpiderDAO.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/Spider.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/post/PostTypeEnum.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/post/PostSearch.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/GroupRestService.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/GroupDAO.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesService.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/postInfo/PostInfoServiceImpl.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesServiceImpl.java
@@ -16,6 +20,9 @@
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/spider/SpiderService.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesDAO.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/post/PostServiceimpl.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/UserGroup.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/GroupService.java
+/Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/group/GroupSearch.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/postInfo/PostInfoDAO.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/userFavorites/UserFavorites.java
 /Users/angela/_development/workspace_eclipse/mangobits/startupkit/MSKSocial/MSKSocial/src/main/java/com/mangobits/startupkit/social/like/LikesRestService.java

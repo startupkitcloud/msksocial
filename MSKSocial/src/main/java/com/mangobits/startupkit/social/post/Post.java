@@ -33,7 +33,14 @@ public class Post {
     private Date creationDate;
 
 
+    @Field
+    private String idGroup;
+
+    @Field
     private String desc;
+
+    @Field
+    private String title;
 
 
     @IndexedEmbedded
@@ -258,4 +265,22 @@ public class Post {
     public void setListTags(List<String> listTags) {
         this.listTags = listTags;
     }
+
+    public String getIdGroup() {
+        return idGroup;
+    }
+
+    public void setIdGroup(String idGroup) {
+        this.idGroup = idGroup;
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 }
