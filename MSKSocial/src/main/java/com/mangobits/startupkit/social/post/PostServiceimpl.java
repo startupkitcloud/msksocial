@@ -4,8 +4,6 @@ package com.mangobits.startupkit.social.post;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
-import com.mangobits.startupkit.core.dao.SearchProjection;
-import com.mangobits.startupkit.core.exception.ApplicationException;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
@@ -20,25 +18,26 @@ import com.mangobits.startupkit.social.group.Group;
 import com.mangobits.startupkit.social.group.GroupService;
 import com.mangobits.startupkit.social.group.UserGroup;
 import com.mangobits.startupkit.social.like.Like;
-import com.mangobits.startupkit.social.like.Likes;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
+import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.UserService;
-import javafx.geometry.Pos;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
-import org.hibernate.search.spatial.DistanceSortField;
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -415,6 +414,42 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
+    public void saveVideo(PhotoUpload photoUpload) throws Exception{
+
+        Post post = retrieve(photoUpload.getIdObject());
+
+        if(post == null){
+            throw new BusinessException("post_not_found");
+        }
+
+        //get the final size
+        int finalWidth = configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
+        photoUpload.setFinalWidth(finalWidth);
+
+        GalleryItem gi = new GalleryItem();
+        gi.setId(photoUpload.getIdSubObject());
+
+        if(post.getGallery() == null){
+            post.setGallery(new ArrayList<>());
+        }
+
+        GalleryItem item = post.getGallery().stream()
+                .filter(p -> p.getId().equals(gi.getId()))
+                .findFirst()
+                .orElse(null);
+
+
+        if(item == null){
+            post.getGallery().add(gi);
+            postDAO.update(post);
+        }
+
+        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
+
+        new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
+    }
+
+    @Override
     public List<Post> searchByNewsUrl(String newsUrl) throws Exception {
 
         return postDAO.search(new SearchBuilder()
@@ -549,6 +584,52 @@ public class PostServiceimpl implements PostService {
                 .setMessage(msg)
                 .build());
     }
+
+    @Override
+    public InfoUrl verifyUrl(String url) throws Exception {
+
+        InfoUrl infoUrl = new InfoUrl();
+
+        try {
+
+            Document doc = Jsoup.connect(url).get();
+            Element elTitle = doc.select("meta[name=title]").first();
+
+            if(elTitle != null){
+                infoUrl.setTitle(elTitle.attr("content"));
+            }
+            else{
+                infoUrl.setTitle(doc.select("title").first().html());
+            }
+
+
+            Element elFoto = doc.select("meta[property=og:image]").first();
+            if(elFoto != null){
+                infoUrl.setUrlPhoto(elFoto.attr("content"));
+            }
+
+            infoUrl.setUrl(url);
+
+
+        } catch (Exception e) {
+            infoUrl = null;
+        }
+
+        return infoUrl;
+    }
+
+    @Override
+    public String videoPath() throws Exception {
+
+        String path = null;
+
+        path = configurationService.loadByCode("PATH_BASE").getValue() + "/videos/";
+
+
+        return path;
+    }
+
+
 
 
 }

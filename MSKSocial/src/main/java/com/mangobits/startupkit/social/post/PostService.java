@@ -1,9 +1,11 @@
 package com.mangobits.startupkit.social.post;
 
+import com.mangobits.startupkit.core.exception.ApplicationException;
+import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
-import com.mangobits.startupkit.social.postInfo.PostInfo;
+import com.mangobits.startupkit.social.spider.InfoUrl;
 
 import javax.ejb.Local;
 import java.util.List;
@@ -41,4 +43,11 @@ public interface PostService {
     Boolean favorite (String idPost, String idUser) throws Exception;
 
     List<Post> listFavorites(String idUser) throws Exception;
+
+    InfoUrl verifyUrl(String url) throws Exception;
+
+    String videoPath() throws Exception;
+
+    void saveVideo(PhotoUpload photoUpload) throws Exception;
+
 }

@@ -17,6 +17,7 @@ import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoService;
+import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
@@ -29,11 +30,16 @@ import javafx.geometry.Pos;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Stateless
@@ -169,6 +175,29 @@ public class PostRestService  extends UserBaseRestService {
 
             Post post = postService.load(id);
             cont.setData(post);
+
+        } catch (Exception e) {
+            handleException(cont, e, "loading a post");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @GET
+    @Path("/verifyUrl/{url}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String verifyUrl(@PathParam("url") String url) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            InfoUrl infoUrl = postService.verifyUrl(url);
+            cont.setData(infoUrl);
 
         } catch (Exception e) {
             handleException(cont, e, "loading a post");
@@ -355,6 +384,31 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+    @POST
+    @Path("/saveVideo")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String saveVideo(PhotoUpload photoUpload) throws Exception{
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.saveVideo(photoUpload);
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "saving post video");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+
     @SecuredUser
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -484,4 +538,114 @@ public class PostRestService  extends UserBaseRestService {
 
         return resultStr;
     }
+
+    @GET
+    @Path("/video/{idPost}/{videoType}")
+    @Produces("video/mp4")
+    public Response video(@HeaderParam("Range") String range, final @PathParam("idPost") String idPost, final @PathParam("videoType") String videoType) throws Exception {
+        Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
+        String path = configuration.getValue() + "/post/" + idPost + "/" + videoType + "_original.mp4";
+        return buildStream(new File(path), range);
+    }
+
+
+    private Response buildStream(final File asset, final String range) throws Exception {
+
+        Response.ResponseBuilder res = null;
+
+        try {
+
+            // range not requested : Firefox, Opera, IE do not send range headers
+            if (range == null) {
+                StreamingOutput streamer = new StreamingOutput() {
+                    @Override
+                    public void write(final OutputStream output) throws IOException, WebApplicationException {
+
+                        FileInputStream fos = new FileInputStream(asset);
+                        final FileChannel inputChannel = fos.getChannel();
+                        final WritableByteChannel outputChannel = Channels.newChannel(output);
+                        try {
+                            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
+                        }
+                        catch (Exception e){
+
+                        }finally {
+                            // closing the channels
+                            try {
+                                inputChannel.close();
+                                outputChannel.close();
+                                fos.close();
+                            } catch (Exception e2) {
+                                // Jesus, no exceptions! =)
+                            }
+                        }
+                    }
+                };
+                return Response.ok(streamer).header(HttpHeaders.CONTENT_LENGTH, asset.length()).build();
+            }
+
+            String[] ranges = range.split("=")[1].split("-");
+            final int from = Integer.parseInt(ranges[0]);
+            /**
+             * Chunk media if the range upper bound is unspecified. Chrome sends "bytes=0-"
+             */
+            int to = 1000 + from;
+            if (to >= asset.length()) {
+                to = (int) (asset.length() - 1);
+            }
+            if (ranges.length == 2) {
+                to = Integer.parseInt(ranges[1]);
+            }
+
+            final String responseRange = String.format("bytes %d-%d/%d", from, to, asset.length());
+            final RandomAccessFile raf = new RandomAccessFile(asset, "r");
+            raf.seek(from);
+
+            final int len = to - from + 1;
+            final MediaStreamer streamer = new MediaStreamer(len, raf);
+            res = Response.status(Response.Status.PARTIAL_CONTENT).entity(streamer)
+                    .header("Accept-Ranges", "bytes")
+                    .header("Content-Range", responseRange)
+                    .header(HttpHeaders.CONTENT_LENGTH, streamer.getLenth())
+                    .header(HttpHeaders.LAST_MODIFIED, new Date(asset.lastModified()));
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        return res.build();
+    }
+
+
+    class MediaStreamer implements StreamingOutput {
+
+        private int length;
+        private RandomAccessFile raf;
+        final byte[] buf = new byte[4096];
+
+        public MediaStreamer(int length, RandomAccessFile raf) {
+            this.length = length;
+            this.raf = raf;
+        }
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException, WebApplicationException {
+            try {
+                while( length != 0) {
+                    int read = raf.read(buf, 0, buf.length > length ? length : buf.length);
+                    outputStream.write(buf, 0, read);
+                    length -= read;
+                }
+            } catch(Exception e){
+
+            }finally {
+                raf.close();
+            }
+        }
+
+        public int getLenth() {
+            return length;
+        }
+    }
+
 }
