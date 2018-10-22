@@ -7,10 +7,7 @@ import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.user.UserCard;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -96,7 +93,9 @@ public class Post {
 
     private Integer totalViews;
 
-
+    @SortableField
+    @Spatial
+    @IndexedEmbedded
     private AddressInfo address;
 
 
