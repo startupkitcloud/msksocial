@@ -90,22 +90,28 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
                 if(itens != null){
                     for(String url : itens){
 
-                        Post postAdded = listAdded.stream()
-                                .filter(p -> p.getInfoUrl().getUrl().equals(url))
-                                .findFirst()
-                                .orElse(null);
+                        try {
+                            Post postAdded = listAdded.stream()
+                                    .filter(p -> p.getInfoUrl().getUrl().equals(url))
+                                    .findFirst()
+                                    .orElse(null);
 
-                        if(postAdded == null){
+                            if(postAdded == null){
 
-                            //check se ja nao foi processado
-                            InfoUrl infoUrl = analyseUrl(spider, url);
+                                //check se ja nao foi processado
+                                InfoUrl infoUrl = analyseUrl(spider, url);
 
-                            //cria o post
-                            Post post = createPost(infoUrl, spider);
+                                //cria o post
+                                Post post = createPost(infoUrl, spider);
 
-                            if(post != null){
-                                listAdded.add(post);
+                                if(post != null){
+                                    listAdded.add(post);
+                                }
                             }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            System.out.print("ERRRRRRROU, MAS CONTINUA");
                         }
                     }
                 }

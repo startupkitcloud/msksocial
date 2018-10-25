@@ -303,7 +303,7 @@ public class PostServiceimpl implements PostService {
         }
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
-        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.DOC, true));
         searchBuilder.setSort(sort);
         //searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
 
