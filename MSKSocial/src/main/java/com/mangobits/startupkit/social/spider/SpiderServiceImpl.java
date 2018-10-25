@@ -1,5 +1,6 @@
 package com.mangobits.startupkit.social.spider;
 
+import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.social.post.Post;
@@ -156,6 +157,18 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
         List<Post> postsDB = postService.searchByNewsUrl(infoUrl.getUrl());
         if(postsDB == null || postsDB.size() == 0){
 
+            //every post must have an address, in this case a fixed one on Curitiba
+            AddressInfo addressInfo = new AddressInfo();
+            addressInfo.setLatitude(-25.4343079);
+            addressInfo.setLongitude(-49.2594428);
+            addressInfo.setStreet("Avenida Sete de Setembro");
+            addressInfo.setNumber("1865");
+            addressInfo.setDistrict("Centro");
+            addressInfo.setCity("Curitiba");
+            addressInfo.setState("PR");
+            addressInfo.setZipCode("80060070");
+            addressInfo.setAddress("Av. Sete de Setembro, 1865 - Centro, Curitiba - PR, 80060-070");
+
             Post post = new Post();
             post.setUserCreator(userService.generateCard(spider.getIdUserPostCreator()));
             post.setStatus(PostStatusEnum.PENDING);
@@ -163,6 +176,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             post.setDesc(infoUrl.getDesc());
             post.setInfoUrl(infoUrl);
             post.setType(PostTypeEnum.NEWS);
+            post.setAddress(addressInfo);
 
             postService.save(post, false);
 

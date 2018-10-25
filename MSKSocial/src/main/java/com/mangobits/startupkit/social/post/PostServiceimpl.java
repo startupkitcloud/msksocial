@@ -4,6 +4,7 @@ package com.mangobits.startupkit.social.post;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
+import com.mangobits.startupkit.core.dao.SearchProjection;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
@@ -29,6 +30,7 @@ import com.mangobits.startupkit.user.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.hibernate.search.spatial.DistanceSortField;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -303,8 +305,7 @@ public class PostServiceimpl implements PostService {
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
         searchBuilder.setSort(sort);
-
-//        searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+        //searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
 
         //ordena
 

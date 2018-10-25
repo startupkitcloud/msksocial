@@ -329,8 +329,8 @@ public class PostRestService  extends UserBaseRestService {
 
                 Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
 
-//                String path = configuration.getValue() + "/post/" + idPost + "/" + imageType + "_main.jpg";
-                String path = configuration.getValue() + "/post/" + idPost + "/main.jpg";
+                String path = configuration.getValue() + "/post/" + idPost + "/" + imageType + "_main.jpg";
+//                String path = configuration.getValue() + "/post/" + idPost + "/main.jpg";
 
 
                 File file = new File(path);
