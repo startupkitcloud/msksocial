@@ -90,17 +90,17 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
                 if(itens != null){
                     for(String url : itens){
 
-                        try {
-                            Post postAdded = listAdded.stream()
-                                    .filter(p -> p.getInfoUrl().getUrl().equals(url))
-                                    .findFirst()
-                                    .orElse(null);
+                        Post postAdded = listAdded.stream()
+                                .filter(p -> p.getInfoUrl().getUrl().equals(url))
+                                .findFirst()
+                                .orElse(null);
 
-                            if(postAdded == null){
+                        if(postAdded == null){
 
-                                //check se ja nao foi processado
-                                InfoUrl infoUrl = analyseUrl(spider, url);
+                            //check se ja nao foi processado
+                            InfoUrl infoUrl = analyseUrl(spider, url);
 
+                            if(infoUrl != null){
                                 //cria o post
                                 Post post = createPost(infoUrl, spider);
 
@@ -108,10 +108,6 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
                                     listAdded.add(post);
                                 }
                             }
-                        }
-                        catch (Exception e){
-                            e.printStackTrace();
-                            System.out.print("ERRRRRRROU, MAS CONTINUA");
                         }
                     }
                 }
@@ -126,33 +122,41 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
 
 
-    private InfoUrl analyseUrl(Spider spider, String url) throws Exception {
+    private InfoUrl analyseUrl(Spider spider, String url) {
 
-        InfoUrl infoUrl = new InfoUrl();
+        InfoUrl infoUrl = null;
 
-        if(url.indexOf("http") == -1){
-            url = spider.getUrlBase() + url;
+        try {
+
+            infoUrl = new InfoUrl();
+
+            if(url.indexOf("http") == -1){
+                url = spider.getUrlBase() + url;
+            }
+
+            Document doc = Jsoup.connect(url).get();
+
+            Element elTitle = doc.select("meta[name=title]").first();
+
+            if(elTitle != null){
+                infoUrl.setTitle(elTitle.attr("content"));
+            }
+            else{
+                infoUrl.setTitle(doc.select("title").first().html());
+            }
+
+
+            Element elFoto = doc.select("meta[property=og:image]").first();
+            if(elFoto != null){
+                infoUrl.setUrlPhoto(elFoto.attr("content"));
+            }
+
+            infoUrl.setUrl(url);
+            infoUrl.setSiteName(spider.getName());
         }
-
-        Document doc = Jsoup.connect(url).get();
-
-        Element elTitle = doc.select("meta[name=title]").first();
-
-        if(elTitle != null){
-            infoUrl.setTitle(elTitle.attr("content"));
+        catch (Exception e){
+            //nada faz
         }
-        else{
-            infoUrl.setTitle(doc.select("title").first().html());
-        }
-
-
-        Element elFoto = doc.select("meta[property=og:image]").first();
-        if(elFoto != null){
-            infoUrl.setUrlPhoto(elFoto.attr("content"));
-        }
-
-        infoUrl.setUrl(url);
-        infoUrl.setSiteName(spider.getName());
 
         return infoUrl;
     }

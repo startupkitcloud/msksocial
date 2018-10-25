@@ -53,8 +53,8 @@ public class Post {
     @Transient
     private Integer time;
 
-//    @Transient
-//    private Integer distance;
+    @Transient
+    private Integer distance;
 
 
     private Integer comments;
@@ -175,13 +175,13 @@ public class Post {
         this.time = time;
     }
 
-//    public Integer getDistance() {
-//        return distance;
-//    }
-//
-//    public void setDistance(Integer distance) {
-//        this.distance = distance;
-//    }
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
 
     public Integer getComments() {
         return comments;
