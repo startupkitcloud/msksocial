@@ -48,13 +48,11 @@ public class Post {
     private Integer likes;
 
 
-    private Integer views;
-
     @Transient
     private Integer time;
 
     @Transient
-    private Integer distance;
+    private Double distance;
 
 
     private Integer comments;
@@ -151,14 +149,6 @@ public class Post {
         this.likes = likes;
     }
 
-    public Integer getViews() {
-        return views;
-    }
-
-    public void setViews(Integer views) {
-        this.views = views;
-    }
-
     public PostStatusEnum getStatus() {
         return status;
     }
@@ -175,11 +165,11 @@ public class Post {
         this.time = time;
     }
 
-    public Integer getDistance() {
+    public Double getDistance() {
         return distance;
     }
 
-    public void setDistance(Integer distance) {
+    public void setDistance(Double distance) {
         this.distance = distance;
     }
 

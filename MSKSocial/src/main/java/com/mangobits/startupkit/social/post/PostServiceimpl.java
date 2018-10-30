@@ -217,6 +217,10 @@ public class PostServiceimpl implements PostService {
         }
         postBase.setComments(postBase.getComments() + 1);
 
+        // pega os 3 últimos posts e adiciona no postBase
+        List<Comment> lastComments = postInfo.getListActiveComments().subList(0, 2);
+        postBase.setLastComments(lastComments);
+
         postDAO.update(postBase);
 
     }
@@ -271,6 +275,10 @@ public class PostServiceimpl implements PostService {
             postBase.setComments(postBase.getComments() - 1);
         }
 
+        // pega os 3 últimos posts e adiciona no postBase
+        List<Comment> lastComments = postInfo.getListActiveComments().subList(0, 2);
+        postBase.setLastComments(lastComments);
+
         postDAO.update(postBase);
 
     }
@@ -305,7 +313,7 @@ public class PostServiceimpl implements PostService {
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.DOC, true));
         searchBuilder.setSort(sort);
-        //searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+        searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
 
         //ordena
 
@@ -314,6 +322,7 @@ public class PostServiceimpl implements PostService {
         //atualiza todos com com view + 1
         if(list != null){
             for(Post post : list){
+
                 if(post.getTotalViews() == null){
                     post.setTotalViews(0);
                 }

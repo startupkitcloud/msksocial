@@ -6,6 +6,9 @@ import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
+import com.mangobits.startupkit.notification.NotificationBuilder;
+import com.mangobits.startupkit.notification.NotificationService;
+import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.*;
@@ -23,10 +26,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Stateless
@@ -42,6 +42,9 @@ public class GroupServiceImpl implements GroupService {
 
     @EJB
     private UserService userService;
+
+    @EJB
+    private NotificationService notificationService;
 
     @EJB
     private ConfigurationService configurationService;
@@ -166,6 +169,8 @@ public class GroupServiceImpl implements GroupService {
         group.getListUsers().add(userGroup);
         groupDAO.update(group);
 
+        sendNotification(user, group.getTitle(), group.getId(), "Você foi adicionado no grupo", "GROUP", group.getCategory());
+
     }
 
     @Override
@@ -217,6 +222,9 @@ public class GroupServiceImpl implements GroupService {
 
         groupDAO.update(group);
 
+        sendNotification(user, group.getTitle(), group.getId(), "Você saiu do grupo", "GROUP", group.getCategory());
+
+
     }
 
     @Override
@@ -251,6 +259,18 @@ public class GroupServiceImpl implements GroupService {
         return list;
     }
 
+
+    private void sendNotification(User user, String title, String link, String msg, String type, String info) throws Exception {
+        notificationService.sendNotification(new NotificationBuilder()
+                .setTo(user)
+                .setTypeSending(TypeSendingNotificationEnum.APP)
+                .setTypeFrom(type)
+                .setTitle(title)
+                .setIdLink(link)
+                .setMessage(msg)
+                .setInfo(info)
+                .build());
+    }
 
 }
 
