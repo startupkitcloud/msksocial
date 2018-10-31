@@ -13,6 +13,9 @@ public class PostSearch {
     private Integer page;
 
 
+    private String idGroup;
+
+
     public String getIdUser() {
         return idUser;
     }
@@ -52,5 +55,13 @@ public class PostSearch {
 
     public void setQueryString(String queryString) {
         this.queryString = queryString;
+    }
+
+    public String getIdGroup() {
+        return idGroup;
+    }
+
+    public void setIdGroup(String idGroup) {
+        this.idGroup = idGroup;
     }
 }

@@ -309,11 +309,16 @@ public class PostServiceimpl implements PostService {
         if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
             searchBuilder.appendParam("title|desc", postSearch.getQueryString());
         }
+        if (postSearch.getIdGroup() != null) {
+            searchBuilder.appendParam("idGroup", postSearch.getIdGroup());
+        }
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.DOC, true));
         searchBuilder.setSort(sort);
-        searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+        if (postSearch.getLat() != null && postSearch.getLog() != null){
+            searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+        }
 
         //ordena
 
