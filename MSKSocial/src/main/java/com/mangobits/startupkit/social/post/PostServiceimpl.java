@@ -79,7 +79,7 @@ public class PostServiceimpl implements PostService {
 
 
     @Override
-    public void changeStatus(String idPost, String idUser) throws Exception {
+    public void changeStatus(String idPost, User user) throws Exception {
 
         Post post = retrieve(idPost);
 
@@ -87,8 +87,11 @@ public class PostServiceimpl implements PostService {
             throw new BusinessException("post_not_found");
         }
 
-        if (!post.getUserCreator().getId().equals(idUser)){
-            throw new BusinessException("user_must_be_creator");
+
+        if (!post.getUserCreator().getId().equals(user.getId())){
+            if (user.getType() == null || !user.getType().equals("ADMIN")){
+                throw new BusinessException("user_must_be_creator_or_admin");
+            }
         }
 
         if(post.getStatus().equals(PostStatusEnum.ACTIVE)){
@@ -316,6 +319,11 @@ public class PostServiceimpl implements PostService {
         if (postSearch.getIdGroup() != null) {
             searchBuilder.appendParam("idGroup", postSearch.getIdGroup());
         }
+
+        if (postSearch.getIdUserCreator() != null) {
+            searchBuilder.appendParam("userCreator.id", postSearch.getIdUserCreator());
+        }
+
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
@@ -530,7 +538,7 @@ public class PostServiceimpl implements PostService {
 
     private List<String> listIdPostLiked(String idUser) throws Exception {
 
-        List<Like> listLikes = (List<Like>) likesService.listILike(idUser);
+        List<Like> listLikes = (List<Like>) likesService.listILike(idUser, "POST");
         List<String> listIdPosts = new ArrayList<>();
 
         for(Like like : listLikes){

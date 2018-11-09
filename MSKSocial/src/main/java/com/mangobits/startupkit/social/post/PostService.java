@@ -6,6 +6,7 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.spider.InfoUrl;
+import com.mangobits.startupkit.user.User;
 
 import javax.ejb.Local;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 @Local
 public interface PostService {
 
-    void changeStatus(String idPost, String idUser) throws Exception;
+    void changeStatus(String idPost, User user) throws Exception;
 
     void changePostNewsStatus(Post post) throws Exception;
 

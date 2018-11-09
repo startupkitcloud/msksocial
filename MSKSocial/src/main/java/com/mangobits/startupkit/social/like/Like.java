@@ -31,7 +31,11 @@ public class Like {
     private String typeObjectLiker;
 
 
-    private String nameObject;
+
+
+    private String nameObjectLiker;
+
+    private String nameObjectLiked;
 
 
     private Date creationDate;
@@ -45,13 +49,6 @@ public class Like {
         this.idObjectLiked = idObject;
     }
 
-    public String getNameObject() {
-        return nameObject;
-    }
-
-    public void setNameObject(String nameObject) {
-        this.nameObject = nameObject;
-    }
 
     public Date getCreationDate() {
         return creationDate;
@@ -84,5 +81,21 @@ public class Like {
 
     public void setTypeObjectLiker(String typeObjectLiker) {
         this.typeObjectLiker = typeObjectLiker;
+    }
+
+    public String getNameObjectLiker() {
+        return nameObjectLiker;
+    }
+
+    public void setNameObjectLiker(String nameObjectLiker) {
+        this.nameObjectLiker = nameObjectLiker;
+    }
+
+    public String getNameObjectLiked() {
+        return nameObjectLiked;
+    }
+
+    public void setNameObjectLiked(String nameObjectLiked) {
+        this.nameObjectLiked = nameObjectLiked;
     }
 }

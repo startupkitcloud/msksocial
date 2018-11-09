@@ -14,8 +14,8 @@ public interface LikesService {
 	Boolean like(Like like) throws Exception;
 
 
-	List<? extends Like> listLikesMe(String idObject) throws Exception;
+	List<? extends Like> listLikesMe(String idObject, String typeObject) throws Exception;
 
 
-	List<? extends Like> listILike(String idObject) throws Exception;
+	List<? extends Like> listILike(String idObject, String typeObject) throws Exception;
 }

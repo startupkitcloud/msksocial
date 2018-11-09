@@ -67,15 +67,15 @@ public class LikesRestService {
 
 	@SecuredUser
 	@GET
-	@Path("/listLikesMe/{idObject}")
+	@Path("/listLikesMe/{idObject}/{typeObject}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public String listLikesMe(@PathParam("idObject") String idObject) throws Exception {
+	public String listLikesMe(final @PathParam("idObject") String idObject, final @PathParam("typeObject") String typeObject) throws Exception {
 
 		String resultStr;
 		JsonContainer cont = new JsonContainer();
 
 		try {
-			List list = likesService.listLikesMe(idObject);
+			List list = likesService.listLikesMe(idObject, typeObject);
 			cont.setData(list);
 
 		} catch (Exception e) {
@@ -99,15 +99,15 @@ public class LikesRestService {
 
 	@SecuredUser
 	@GET
-	@Path("/listILike/{idObject}")
+	@Path("/listILike/{idObject}/{typeObject}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public String listILike(@PathParam("idObject") String idObject) throws Exception {
+	public String listILike(final @PathParam("idObject") String idObject, final @PathParam("typeObject") String typeObject) throws Exception {
 
 		String resultStr;
 		JsonContainer cont = new JsonContainer();
 
 		try {
-			List list = likesService.listILike(idObject);
+			List list = likesService.listILike(idObject, typeObject);
 			cont.setData(list);
 
 		} catch (Exception e) {

@@ -226,7 +226,7 @@ public class PostRestService  extends UserBaseRestService {
                 throw new BusinessException("user_not_found");
             }
 
-            postService.changeStatus(id, user.getId());
+            postService.changeStatus(id, user);
             cont.setData("OK");
 
         } catch (Exception e) {

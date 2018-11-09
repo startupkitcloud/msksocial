@@ -11,6 +11,7 @@ import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -103,7 +104,7 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public List<? extends Like> listLikesMe(String idObject) throws Exception {
+    public List<? extends Like> listLikesMe(String idObject, String typeObject) throws Exception {
 
         List<Like> list = new ArrayList<>();
 
@@ -111,10 +112,10 @@ public class LikesServiceImpl implements LikesService {
             Likes likes = likesDAO.retrieve(new Likes(idObject));
 
             if(likes != null){
-                list = likes.getListLikesMe();
+                list = likes.getListLikesMe().stream()
+                        .filter(p -> p.getTypeObjectLiked().equals(typeObject))
+                        .collect(Collectors.toList());
             }
-
-
 
         return list;
     }
@@ -123,14 +124,17 @@ public class LikesServiceImpl implements LikesService {
 
 
     @Override
-    public List<? extends Like> listILike(String idObject) throws Exception {
+    public List<? extends Like> listILike(String idObject, String typeObject) throws Exception {
 
-        List<? extends Like> list = new ArrayList<>();
+        List<Like> list = new ArrayList<>();
 
-            Likes likes = likesDAO.retrieve(new Likes(idObject));
+
+        Likes likes = likesDAO.retrieve(new Likes(idObject));
 
             if(likes != null){
-                list = likes.getListILike();
+                list = likes.getListILike().stream()
+                        .filter(p -> p.getTypeObjectLiked().equals(typeObject))
+                        .collect(Collectors.toList());
             }
 
         return list;

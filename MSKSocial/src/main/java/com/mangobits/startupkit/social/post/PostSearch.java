@@ -16,6 +16,9 @@ public class PostSearch {
     private String idGroup;
 
 
+    private String idUserCreator;
+
+
     public String getIdUser() {
         return idUser;
     }
@@ -63,5 +66,13 @@ public class PostSearch {
 
     public void setIdGroup(String idGroup) {
         this.idGroup = idGroup;
+    }
+
+    public String getIdUserCreator() {
+        return idUserCreator;
+    }
+
+    public void setIdUserCreator(String idUserCreator) {
+        this.idUserCreator = idUserCreator;
     }
 }
