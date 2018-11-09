@@ -256,6 +256,26 @@ public class GroupServiceImpl implements GroupService {
         //ordena
         List<Group> list = this.groupDAO.search(searchBuilder.build());
 
+
+        if (groupSearch.getIdUser() != null) {
+
+            List<Group> listUserGroups = new ArrayList<>();
+
+            for (Group group: list){
+
+                    UserGroup user = group.getListUsers().stream()
+                            .filter(p -> p.getIdUser().equals(groupSearch.getIdUser()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (user != null){
+                        listUserGroups.add(group);
+                    }
+
+            }
+
+            list = listUserGroups;
+        }
         return list;
     }
 
