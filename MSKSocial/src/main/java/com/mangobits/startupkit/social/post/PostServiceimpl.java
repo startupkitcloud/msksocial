@@ -24,6 +24,7 @@ import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
 import com.mangobits.startupkit.social.spider.InfoUrl;
+import com.mangobits.startupkit.social.survey.SurveyOption;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
@@ -168,6 +169,19 @@ public class PostServiceimpl implements PostService {
 
         if(post.getId() == null){
             post.setCreationDate(new Date());
+
+            if (post.getType() == PostTypeEnum.SURVEY){
+                if (post.getSurvey() == null){
+                    throw new BusinessException("missing_survey");
+                }
+                for (SurveyOption item: post.getSurvey().getListSurveyOptions()){
+                    item.setNumberOfVotes(0d);
+                    item.setPercentageOfVotes(0d);
+                    item.setId(UUID.randomUUID().toString());
+                }
+                post.getSurvey().setTotalVotes(0);
+            }
+
             postDAO.insert(post);
 
             if (post.getIdGroup() != null && sendGroupMessage){

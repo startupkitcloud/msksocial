@@ -5,5 +5,6 @@ public enum PostTypeEnum {
     NEWS,
     IMAGE,
     TEXT,
-    VIDEO
+    VIDEO,
+    SURVEY
 }

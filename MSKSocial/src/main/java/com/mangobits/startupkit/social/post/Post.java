@@ -5,6 +5,8 @@ import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.spider.InfoUrl;
+import com.mangobits.startupkit.social.survey.Survey;
+import com.mangobits.startupkit.social.survey.SurveyOption;
 import com.mangobits.startupkit.user.UserCard;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.search.annotations.*;
@@ -43,6 +45,10 @@ public class Post {
 
     @IndexedEmbedded
     private UserCard userCreator;
+
+
+    @IndexedEmbedded
+    private Survey survey;
 
 
     private Integer likes;
@@ -96,6 +102,10 @@ public class Post {
     @Spatial
     @IndexedEmbedded
     private AddressInfo address;
+
+
+
+
 
 
     public Post(){
@@ -271,6 +281,15 @@ public class Post {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+
+    public Survey getSurvey() {
+        return survey;
+    }
+
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
     }
 
 }
