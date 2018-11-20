@@ -1,6 +1,7 @@
 package com.mangobits.startupkit.social.post;
 
 
+import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
@@ -26,7 +27,9 @@ import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
+import com.mangobits.startupkit.user.UserCard;
 import com.mangobits.startupkit.user.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -133,6 +136,27 @@ public class PostServiceimpl implements PostService {
         postBase.setStatus(post.getStatus());
         postDAO.update(postBase);
 
+        if(postBase.getType().equals(PostTypeEnum.NEWS)){
+            Configuration configuration =configurationService.loadByCode("NOTIFY_USERS");
+
+            if(configuration != null){
+                sendMessageChangePostNewsStatus();
+            }
+
+        }
+
+    }
+
+    private void sendMessageChangePostNewsStatus() throws Exception {
+
+        List<UserCard> listUserCard = this.userService.listAll();
+
+        if(CollectionUtils.isNotEmpty(listUserCard)){
+
+            for(UserCard userCard : listUserCard){
+               // sendNotification();
+            }
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.social.post.PostStatusEnum;
 import com.mangobits.startupkit.social.post.PostTypeEnum;
 import com.mangobits.startupkit.user.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -136,6 +137,17 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
             Document doc = Jsoup.connect(url).get();
 
+            if(CollectionUtils.isNotEmpty(spider.getTags())){
+
+                String pageDoc = doc.toString().toUpperCase();
+
+                for(String tag : spider.getTags()){
+                    if(!pageDoc.contains(tag.toUpperCase())){
+                        return null;
+                    }
+                }
+            }
+
             Element elTitle = doc.select("meta[name=title]").first();
 
             if(elTitle != null){
@@ -180,7 +192,10 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             addressInfo.setAddress("Av. Sete de Setembro, 1865 - Centro, Curitiba - PR, 80060-070");
 
             Post post = new Post();
-            post.setUserCreator(userService.generateCard(spider.getIdUserPostCreator()));
+            if(spider.getIdUserPostCreator() != null && userService.generateCard(spider.getIdUserPostCreator()) != null){
+                post.setUserCreator(userService.generateCard(spider.getIdUserPostCreator()));
+            }
+
             post.setStatus(PostStatusEnum.PENDING);
             post.setCreationDate(new Date());
             post.setDesc(infoUrl.getDesc());

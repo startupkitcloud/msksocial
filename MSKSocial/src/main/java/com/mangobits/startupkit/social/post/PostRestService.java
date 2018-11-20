@@ -12,20 +12,12 @@ import com.mangobits.startupkit.notification.email.EmailService;
 import com.mangobits.startupkit.service.admin.util.SecuredAdmin;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
-import com.mangobits.startupkit.social.like.LikesService;
-import com.mangobits.startupkit.social.post.Post;
-import com.mangobits.startupkit.social.post.PostService;
-import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoService;
 import com.mangobits.startupkit.social.spider.InfoUrl;
-import com.mangobits.startupkit.social.userFavorites.UserFavorites;
-import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
-import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
 import com.mangobits.startupkit.ws.JsonContainer;
-import javafx.geometry.Pos;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -38,7 +30,6 @@ import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,10 +43,6 @@ public class PostRestService  extends UserBaseRestService {
 
     @EJB
     private PostInfoService postInfoService;
-
-
-    @EJB
-    private UserFavoritesService userFavoritesService;
 
     @EJB
     private ConfigurationService configurationService;
