@@ -34,8 +34,8 @@ public class SurveyRestService  extends UserBaseRestService {
 
         try {
 
-            surveyService.saveVote(surveyOption);
-            cont.setData("OK");
+            Post post = surveyService.saveVote(surveyOption);
+            cont.setData(post);
 
         } catch (Exception e) {
             handleException(cont, e, "saving sourvey option");

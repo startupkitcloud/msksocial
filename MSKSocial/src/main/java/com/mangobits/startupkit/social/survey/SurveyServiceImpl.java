@@ -20,7 +20,7 @@ public class SurveyServiceImpl implements SurveyService {
 
 
     @Override
-    public void saveVote(SurveyOption surveyOption) throws Exception {
+    public Post saveVote(SurveyOption surveyOption) throws Exception {
 
         if(surveyOption.getIdPost() == null){
             throw new BusinessException("missing_idPost");
@@ -29,11 +29,6 @@ public class SurveyServiceImpl implements SurveyService {
         if(surveyOption.getId() == null){
             throw new BusinessException("missing_idSurvey");
         }
-
-        if(surveyOption.getIdUser() == null){
-            throw new BusinessException("missing_idUser");
-        }
-
         // adiciona o comentário no postInfo
         Post post = postDAO.retrieve(new Post(surveyOption.getIdPost()));
         if (post == null){
@@ -73,6 +68,7 @@ public class SurveyServiceImpl implements SurveyService {
         }
 
         postDAO.update(post);
+        return post;
 
     }
 }

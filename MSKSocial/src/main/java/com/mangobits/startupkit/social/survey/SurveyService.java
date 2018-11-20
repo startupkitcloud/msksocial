@@ -1,9 +1,11 @@
 package com.mangobits.startupkit.social.survey;
 
+import com.mangobits.startupkit.social.post.Post;
+
 import javax.ejb.Local;
 
 @Local
 public interface SurveyService {
 
-    void saveVote(SurveyOption surveyOption) throws Exception;
+    Post saveVote(SurveyOption surveyOption) throws Exception;
 }

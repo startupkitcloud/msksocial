@@ -24,9 +24,6 @@ public class SurveyOption {
     @Transient
     private String idPost;
 
-    @Transient
-    private String idUser;
-
     @Field
     private Double numberOfVotes;
 
@@ -71,14 +68,6 @@ public class SurveyOption {
 
     public void setIdPost(String idPost) {
         this.idPost = idPost;
-    }
-
-    public String getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(String idUser) {
-        this.idUser = idUser;
     }
 
 
