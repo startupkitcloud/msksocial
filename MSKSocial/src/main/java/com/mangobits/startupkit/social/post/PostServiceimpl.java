@@ -137,7 +137,7 @@ public class PostServiceimpl implements PostService {
         postBase.setStatus(post.getStatus());
         postDAO.update(postBase);
 
-        if(postBase.getType().equals(PostTypeEnum.NEWS)){
+        if(postBase.getType().equals(PostTypeEnum.NEWS) && postBase.getStatus().equals(PostStatusEnum.ACTIVE)){
             Configuration configuration =configurationService.loadByCode("NOTIFY_USERS");
 
             if(configuration != null){

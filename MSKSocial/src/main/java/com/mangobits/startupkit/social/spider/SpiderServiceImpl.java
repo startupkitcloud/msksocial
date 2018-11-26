@@ -2,7 +2,9 @@ package com.mangobits.startupkit.social.spider;
 
 import com.mangobits.startupkit.core.address.AddressInfo;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
+import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
+import com.mangobits.startupkit.core.utils.BusinessUtils;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.social.post.PostStatusEnum;
@@ -42,6 +44,50 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
     @New
     @Inject
     private SpiderDAO spiderDAO;
+
+
+    @Override
+    public void save(Spider spider) throws Exception {
+
+        if(spider.getId() == null){
+            spider.setStatus(SimpleStatusEnum.ACTIVE);
+            spider.setCreationDate(new Date());
+        }
+
+        new BusinessUtils<>(spiderDAO).basicSave(spider);
+    }
+
+    @Override
+    public List<Spider> listAll() throws Exception{
+        return spiderDAO.listAll();
+    }
+
+    @Override
+    public Spider load(String id) throws Exception {
+
+        Spider spider = null;
+
+        spider = spiderDAO.retrieve(new Spider(id));
+
+        if (spider == null){
+            throw new BusinessException("spider_not_found");
+        }
+        return spider;
+    }
+
+    @Override
+    public void changeStatus(String id) throws Exception {
+
+        Spider product = spiderDAO.retrieve(new Spider(id));
+
+        if(product.getStatus().equals(SimpleStatusEnum.ACTIVE)){
+            product.setStatus(SimpleStatusEnum.BLOCKED);
+        }else{
+            product.setStatus(SimpleStatusEnum.ACTIVE);
+        }
+
+        spiderDAO.update(product);
+    }
 
 
     @Override

@@ -6,8 +6,10 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -49,6 +51,10 @@ public class Spider {
 
 
     private String idUserPostCreator;
+
+    @SortableField
+    @Field
+    private Date creationDate;
 
 
     public Spider() {
@@ -130,5 +136,13 @@ public class Spider {
 
     public void setUrlBase(String urlBase) {
         this.urlBase = urlBase;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }
