@@ -78,15 +78,19 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
     @Override
     public void changeStatus(String id) throws Exception {
 
-        Spider product = spiderDAO.retrieve(new Spider(id));
+        Spider spider = spiderDAO.retrieve(new Spider(id));
 
-        if(product.getStatus().equals(SimpleStatusEnum.ACTIVE)){
-            product.setStatus(SimpleStatusEnum.BLOCKED);
-        }else{
-            product.setStatus(SimpleStatusEnum.ACTIVE);
+        if (spider == null){
+            throw new BusinessException("spider_not_found");
         }
 
-        spiderDAO.update(product);
+        if(spider.getStatus().equals(SimpleStatusEnum.ACTIVE)){
+            spider.setStatus(SimpleStatusEnum.BLOCKED);
+        }else{
+            spider.setStatus(SimpleStatusEnum.ACTIVE);
+        }
+
+        spiderDAO.update(spider);
     }
 
 
