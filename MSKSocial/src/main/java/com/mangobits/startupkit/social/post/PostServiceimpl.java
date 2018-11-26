@@ -207,7 +207,7 @@ public class PostServiceimpl implements PostService {
 
             for (UserGroup userGroup : group.getListUsers()){
                 User user = userService.retrieve(userGroup.getIdUser());
-                sendNotification(user, group.getTitle(), idPost, "Publicou um post", "GROUP_POST");
+                sendNotification(user, group.getTitle(), idPost, group.getId(),"Publicou um post", "GROUP_POST");
 
             }
         }
@@ -640,13 +640,14 @@ public class PostServiceimpl implements PostService {
 
     }
 
-    private void sendNotification(User user, String title, String link, String msg, String type) throws Exception {
+    private void sendNotification(User user, String title, String link, String idFrom, String msg, String type) throws Exception {
         notificationService.sendNotification(new NotificationBuilder()
                 .setTo(user)
                 .setTypeSending(TypeSendingNotificationEnum.APP)
                 .setTypeFrom(type)
                 .setTitle(title)
                 .setIdLink(link)
+                .setIdFrom(idFrom)
                 .setMessage(msg)
                 .build());
     }
@@ -690,7 +691,6 @@ public class PostServiceimpl implements PostService {
         String path = null;
 
         path = configurationService.loadByCode("PATH_BASE").getValue() + "/videos/";
-
 
         return path;
     }
