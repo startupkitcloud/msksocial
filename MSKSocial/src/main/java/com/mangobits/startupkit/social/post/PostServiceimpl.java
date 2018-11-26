@@ -1,6 +1,7 @@
 package com.mangobits.startupkit.social.post;
 
 
+import com.mangobits.startupkit.core.address.AddressUtils;
 import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
@@ -167,6 +168,10 @@ public class PostServiceimpl implements PostService {
             post.setStatus(PostStatusEnum.ACTIVE);
         }
 
+        if (post.getAddress() != null && post.getAddress().getLatitude() == null){
+            new AddressUtils().geocodeAddress(post.getAddress());
+        }
+
         if(post.getId() == null){
             post.setCreationDate(new Date());
 
@@ -188,6 +193,7 @@ public class PostServiceimpl implements PostService {
                 sendGroupMessage(post.getIdGroup(), post.getId());
             }
         }else {
+
             new BusinessUtils<>(postDAO).basicSave(post);
         }
 
