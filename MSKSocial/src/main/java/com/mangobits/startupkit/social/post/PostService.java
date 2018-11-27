@@ -43,7 +43,7 @@ public interface PostService {
 
     Boolean favorite (String idPost, String idUser) throws Exception;
 
-    List<Post> listFavorites(String idUser, Double lat, Double log) throws Exception;
+    List<Post> listFavorites(PostSearch postSearch) throws Exception;
 
     InfoUrl verifyUrl(String url) throws Exception;
 

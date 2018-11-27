@@ -619,23 +619,27 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
-    public List<Post> listFavorites (String idUser, Double lat, Double log) throws Exception {
+    public List<Post> listFavorites (PostSearch postSearch) throws Exception {
 
-        List<String> listidPost = listPostFavorite(idUser);
+        if (postSearch.getIdUser() == null){
+            throw new BusinessException("missing_idUser");
+        }
+
+        List<String> listidPost = listPostFavorite(postSearch.getIdUser());
 
         SearchBuilder searchBuilder = new SearchBuilder();
         searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
         searchBuilder.appendParam("in:id", listidPost);
 
-        if (lat != null && log != null){
-            searchBuilder.setProjection(new SearchProjection(lat,log, "address", "distance"));
+        if (postSearch.getLat() != null && postSearch.getLog() != null){
+            searchBuilder.setProjection(new SearchProjection(postSearch.getLat(),postSearch.getLog(), "address", "distance"));
         }
 
         //ordena
         List<Post> list = this.postDAO.search(searchBuilder.build());
 
         // verifica se o post foi curtido
-        List<String> listIdPostLiked = listIdPostLiked(idUser);
+        List<String> listIdPostLiked = listIdPostLiked(postSearch.getIdUser());
 
         for (Post post : list){
 
