@@ -264,8 +264,19 @@ public class PostRestService  extends UserBaseRestService {
         String resultStr;
         JsonContainer cont = new JsonContainer();
 
+        User user = getUserTokenSession();
+        if (user == null){
+            throw new BusinessException("user_not_found");
+        }
+        Double lat = null;
+        Double log = null;
+        if (user.getLastAddress()!= null && user.getLastAddress().getLatitude() != null){
+            lat = user.getLastAddress().getLatitude();
+            log = user.getLastAddress().getLongitude();
+        }
+
         try {
-            List<Post> list = postService.listFavorites(idUser);
+            List<Post> list = postService.listFavorites(idUser, lat, log);
             cont.setData(list);
 
         } catch (Exception e) {

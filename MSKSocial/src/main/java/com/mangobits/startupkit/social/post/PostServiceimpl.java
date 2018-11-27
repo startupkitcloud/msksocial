@@ -421,9 +421,9 @@ public class PostServiceimpl implements PostService {
                     }
 
                     // verifica se o post foi favoritado
-                    List<Post> listPostFavorite = listPostFavorite(postSearch.getIdUser());
-                    Post postFavorited = listPostFavorite.stream()
-                            .filter(p -> p.getId().equals(post.getId()))
+                    List<String> listPostFavorite = listPostFavorite(postSearch.getIdUser());
+                    String postFavorited = listPostFavorite.stream()
+                            .filter(p -> p.equals(post.getId()))
                             .findFirst()
                             .orElse(null);
 
@@ -605,10 +605,10 @@ public class PostServiceimpl implements PostService {
     }
 
 
-    private List<Post> listPostFavorite(String idUser) throws Exception {
+    private List<String> listPostFavorite(String idUser) throws Exception {
 
         UserFavorites userFavorites =  userFavoritesService.load(idUser);
-        List<Post> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
 
         if (userFavorites != null && userFavorites.getListFavorites() != null) {
             list = userFavorites.getListFavorites();
@@ -619,9 +619,20 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
-    public List<Post> listFavorites(String idUser) throws Exception {
+    public List<Post> listFavorites (String idUser, Double lat, Double log) throws Exception {
 
-        List<Post> list = listPostFavorite(idUser);
+        List<String> listidPost = listPostFavorite(idUser);
+
+        SearchBuilder searchBuilder = new SearchBuilder();
+        searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
+        searchBuilder.appendParam("in:id", listidPost);
+
+        if (lat != null && log != null){
+            searchBuilder.setProjection(new SearchProjection(lat,log, "address", "distance"));
+        }
+
+        //ordena
+        List<Post> list = this.postDAO.search(searchBuilder.build());
 
         // verifica se o post foi curtido
         List<String> listIdPostLiked = listIdPostLiked(idUser);
@@ -643,7 +654,6 @@ public class PostServiceimpl implements PostService {
         }
 
         return list;
-
     }
 
     private void sendNotification(User user, String title, String link, String idFrom, String msg, String type) throws Exception {

@@ -26,7 +26,7 @@ public class UserFavorites {
 
     @IndexedEmbedded
     @ElementCollection(fetch= FetchType.EAGER)
-    private List<Post> listFavorites;
+    private List<String> listFavorites;
 
 
     public String getId() {
@@ -37,11 +37,11 @@ public class UserFavorites {
         this.id = id;
     }
 
-    public List<Post> getListFavorites() {
+    public List<String> getListFavorites() {
         return listFavorites;
     }
 
-    public void setListFavorites(List<Post> listFavorites) {
+    public void setListFavorites(List<String> listFavorites) {
         this.listFavorites = listFavorites;
     }
 

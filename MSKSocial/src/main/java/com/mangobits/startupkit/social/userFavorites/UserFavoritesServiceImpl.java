@@ -38,16 +38,16 @@ public class UserFavoritesServiceImpl implements UserFavoritesService {
             userFavorites = new UserFavorites();
             userFavorites.setId(idUser);
             userFavorites.setListFavorites(new ArrayList<>());
-            userFavorites.getListFavorites().add(post);
+            userFavorites.getListFavorites().add(idPost);
             userFavoritesDAO.insert(userFavorites);
         }else {
             if (userFavorites.getListFavorites() == null){
                 userFavorites.setListFavorites(new ArrayList<>());
-                userFavorites.getListFavorites().add(post);
+                userFavorites.getListFavorites().add(idPost);
             }else {
 
-                Post postBase = userFavorites.getListFavorites().stream()
-                        .filter(p -> p.getId().equals(idPost))
+                String postBase = userFavorites.getListFavorites().stream()
+                        .filter(p -> p.equals(idPost))
                         .findFirst()
                         .orElse(null);
 
@@ -55,7 +55,7 @@ public class UserFavoritesServiceImpl implements UserFavoritesService {
                     userFavorites.getListFavorites().remove(postBase);
                     remove = true;
                 }else {
-                    userFavorites.getListFavorites().add(post);
+                    userFavorites.getListFavorites().add(idPost);
                 }
             }
 
