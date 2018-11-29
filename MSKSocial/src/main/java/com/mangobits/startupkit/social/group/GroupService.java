@@ -22,4 +22,6 @@ public interface GroupService {
 
     List<Group> search(GroupSearch groupSearch) throws Exception;
 
+    List<Group> listByUser (String idUser) throws Exception;
+
 }

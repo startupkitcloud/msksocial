@@ -31,6 +31,9 @@ import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.UserCard;
 import com.mangobits.startupkit.user.UserService;
+import com.mangobits.startupkit.user.preference.Preference;
+import com.mangobits.startupkit.user.preference.PreferenceService;
+import com.mangobits.startupkit.user.preference.UserPreferences;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Sort;
@@ -74,6 +77,10 @@ public class PostServiceimpl implements PostService {
 
     @EJB
     private UserService userService;
+
+    @EJB
+    private PreferenceService preferenceService;
+
 
     @EJB
     private UserFavoritesService userFavoritesService;
@@ -360,12 +367,19 @@ public class PostServiceimpl implements PostService {
         if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
             searchBuilder.appendParam("title|desc", postSearch.getQueryString());
         }
+        // tipos de pesquisa:
+        // 1 - todos os posts de determinado grupo ou
+        // 2 - todos os posts de um determinado usuario ou
+        // 3 - home aonde aparecem apenas os posts dos grupos que o usuario faz parte e o os posts das categorias que o usario gosta
+        // Como não se deve essas 3 pesquisas ao mesmo tempo, optou-se por um else if
         if (postSearch.getIdGroup() != null) {
             searchBuilder.appendParam("idGroup", postSearch.getIdGroup());
-        }
-
-        if (postSearch.getIdUserCreator() != null) {
+        }else if (postSearch.getIdUserCreator() != null) {
             searchBuilder.appendParam("userCreator.id", postSearch.getIdUserCreator());
+        }else if (postSearch.getIdUser() != null) {
+            List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
+            List<Group> listGroups = groupService.listByUser(postSearch.getIdUser());
+
         }
 
         searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));

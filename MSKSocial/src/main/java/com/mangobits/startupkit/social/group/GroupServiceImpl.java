@@ -258,20 +258,31 @@ public class GroupServiceImpl implements GroupService {
 
 
         if (groupSearch.getIdUser() != null) {
+            list = listByUser(groupSearch.getIdUser());
+        }
+        return list;
+    }
 
-            List<Group> listUserGroups = new ArrayList<>();
+    @Override
+    public List<Group> listByUser (String idUser) throws Exception {
 
-            for (Group group: list){
+        SearchBuilder searchBuilder = new SearchBuilder();
+        searchBuilder.appendParam("status", SimpleStatusEnum.ACTIVE);
 
-                    UserGroup user = group.getListUsers().stream()
-                            .filter(p -> p.getIdUser().equals(groupSearch.getIdUser()))
-                            .findFirst()
-                            .orElse(null);
+        //ordena
+        List<Group> list = this.groupDAO.search(searchBuilder.build());
 
-                    if (user != null){
-                        listUserGroups.add(group);
-                    }
+        List<Group> listUserGroups = new ArrayList<>();
 
+        for (Group group: list){
+
+            UserGroup user = group.getListUsers().stream()
+                    .filter(p -> p.getIdUser().equals(idUser))
+                    .findFirst()
+                    .orElse(null);
+
+            if (user != null){
+                listUserGroups.add(group);
             }
 
             list = listUserGroups;
