@@ -70,6 +70,8 @@ public class Post {
     @Transient
     private Boolean fgFavorite;
 
+
+    @IndexedEmbedded
     @ElementCollection(fetch=FetchType.EAGER)
     private List<String> listTags;
 

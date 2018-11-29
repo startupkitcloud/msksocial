@@ -36,8 +36,11 @@ import com.mangobits.startupkit.user.preference.PreferenceService;
 import com.mangobits.startupkit.user.preference.UserPreferences;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.spatial.DistanceSortField;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -362,37 +365,103 @@ public class PostServiceimpl implements PostService {
     @Override
     public List<Post> search(PostSearch postSearch) throws Exception {
 
-        SearchBuilder searchBuilder = new SearchBuilder();
-        searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
-        if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
-            searchBuilder.appendParam("title|desc", postSearch.getQueryString());
-        }
-        // tipos de pesquisa:
-        // 1 - todos os posts de determinado grupo ou
-        // 2 - todos os posts de um determinado usuario ou
-        // 3 - home aonde aparecem apenas os posts dos grupos que o usuario faz parte e o os posts das categorias que o usario gosta
-        // Como não se deve essas 3 pesquisas ao mesmo tempo, optou-se por um else if
+//        SearchBuilder searchBuilder = new SearchBuilder();
+//        searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
+//        if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
+//            searchBuilder.appendParam("title|desc", postSearch.getQueryString());
+//        }
+//        // tipos de pesquisa:
+//        // 1 - todos os posts de determinado grupo ou
+//        // 2 - todos os posts de um determinado usuario ou
+//        // 3 - home aonde aparecem apenas os posts dos grupos que o usuario faz parte e o os posts das categorias que o usario gosta
+//        // Como não se deve essas 3 pesquisas ao mesmo tempo, optou-se por um else if
+//        if (postSearch.getIdGroup() != null) {
+//            searchBuilder.appendParam("idGroup", postSearch.getIdGroup());
+//        }else if (postSearch.getIdUserCreator() != null) {
+//            searchBuilder.appendParam("userCreator.id", postSearch.getIdUserCreator());
+//        }else if (postSearch.getIdUser() != null) {
+//            List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
+//            List<Group> listGroups = groupService.listByUser(postSearch.getIdUser());
+//
+//        }
+//
+//        searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+//        searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
+//        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+//        searchBuilder.setSort(sort);
+//        if (postSearch.getLat() != null && postSearch.getLog() != null){
+//            searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+//        }
+
+
+        List<Post> posts = null;
+
+        SearchBuilder sb = postDAO.createBuilder();
+
+        BooleanQuery.Builder qb = new BooleanQuery.Builder()
+                .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
+                        BooleanClause.Occur.MUST);
+
         if (postSearch.getIdGroup() != null) {
-            searchBuilder.appendParam("idGroup", postSearch.getIdGroup());
-        }else if (postSearch.getIdUserCreator() != null) {
-            searchBuilder.appendParam("userCreator.id", postSearch.getIdUserCreator());
-        }else if (postSearch.getIdUser() != null) {
-            List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
-            List<Group> listGroups = groupService.listByUser(postSearch.getIdUser());
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("idGroup").sentence(postSearch.getIdGroup())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+        else if (postSearch.getIdUserCreator() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("userCreator.id").sentence(postSearch.getIdUserCreator())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+        else{
+            //feed normal
 
+            if (postSearch.getQueryString() != null && StringUtils.isNotEmpty(postSearch.getQueryString().trim())) {
+                qb = qb.add(sb.getQueryBuilder().keyword().fuzzy().onFields("title", "desc").matching(
+                        postSearch.getQueryString()).createQuery(), BooleanClause.Occur.MUST);
+            }
+
+            //se o usuario estiver logado
+            if(postSearch.getIdUser() != null){
+
+                int totalShoud = 0;
+
+                List<Group> listGroups = groupService.listByUser(postSearch.getIdUser());
+                if(!listGroups.isEmpty()){
+                    BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
+                    for(Group group : listGroups){
+                        bjGroup.should(sb.getQueryBuilder().keyword().onField("idGroup").matching(group.getId()).createQuery());
+                    }
+                    qb = qb.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
+
+                    totalShoud = 1;
+                }
+
+                List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
+                if(!listPreferences.isEmpty()){
+                    BooleanJunction<?> bjPref = sb.getQueryBuilder().bool();
+                    for(Preference preference : listPreferences){
+                        bjPref.should(sb.getQueryBuilder().keyword().onField("listTags").matching(preference.getId()).createQuery());
+                    }
+                    qb = qb.add(bjPref.createQuery(), BooleanClause.Occur.SHOULD);
+
+                    totalShoud = 1;
+                }
+
+                qb = qb.setMinimumNumberShouldMatch(totalShoud);
+            }
         }
 
-        searchBuilder.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
-        searchBuilder.setMaxResults(TOTAL_POSTS_PAGE);
+        sb.setQuery(qb.build());
+
+        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        sb.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
-        searchBuilder.setSort(sort);
+        sb.setSort(sort);
         if (postSearch.getLat() != null && postSearch.getLog() != null){
-            searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+            sb.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
         }
 
         //ordena
 
-        List<Post> list = this.postDAO.search(searchBuilder.build());
+        List<Post> list = postDAO.search(sb.build());
 
         //atualiza todos com com view + 1
         if(list != null){
