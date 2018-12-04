@@ -26,6 +26,7 @@ import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.survey.SurveyOption;
+import com.mangobits.startupkit.social.survey.SurveyService;
 import com.mangobits.startupkit.social.userFavorites.UserFavorites;
 import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
 import com.mangobits.startupkit.user.User;
@@ -80,6 +81,9 @@ public class PostServiceimpl implements PostService {
 
     @EJB
     private UserService userService;
+
+    @EJB
+    private SurveyService surveyService;
 
     @EJB
     private PreferenceService preferenceService;
@@ -148,25 +152,35 @@ public class PostServiceimpl implements PostService {
         postBase.setStatus(post.getStatus());
         postDAO.update(postBase);
 
-        if(postBase.getType().equals(PostTypeEnum.NEWS) && postBase.getStatus().equals(PostStatusEnum.ACTIVE)){
-            Configuration configuration =configurationService.loadByCode("NOTIFY_USERS");
+//        if(postBase.getType().equals(PostTypeEnum.NEWS) && postBase.getStatus().equals(PostStatusEnum.ACTIVE)){
+//            Configuration configuration =configurationService.loadByCode("NOTIFY_USERS");
+//
+//            if(configuration != null){
+//                sendPostNewsNotification();
+//            }
+//
+//        }
 
-            if(configuration != null){
-                sendMessageChangePostNewsStatus();
-            }
-
+        if(postBase.getStatus().equals(PostStatusEnum.ACTIVE) && post.getFgNotification() != null && post.getFgNotification()){
+            sendPostNewsNotification(postBase);
         }
 
     }
 
-    private void sendMessageChangePostNewsStatus() throws Exception {
+    private void sendPostNewsNotification(Post post) throws Exception {
 
         List<UserCard> listUserCard = this.userService.listAll();
 
         if(CollectionUtils.isNotEmpty(listUserCard)){
 
             for(UserCard userCard : listUserCard){
-               // sendNotification();
+                User user = userService.retrieve(userCard.getId());
+                String title = "Foi postado um novo post:";
+                String message = "";
+                if (post.getTitle() != null){
+                    message = post.getTitle();
+                }
+               sendNotification(user, title, post.getInfoUrl().getUrl(), post.getId(), message, "NEWS");
             }
         }
     }
@@ -186,6 +200,8 @@ public class PostServiceimpl implements PostService {
             post.setCreationDate(new Date());
 
             if (post.getType() == PostTypeEnum.SURVEY){
+
+
                 if (post.getSurvey() == null){
                     throw new BusinessException("missing_survey");
                 }
@@ -195,6 +211,7 @@ public class PostServiceimpl implements PostService {
                     item.setId(UUID.randomUUID().toString());
                 }
                 post.getSurvey().setTotalVotes(0);
+                post.getSurvey().setListUsers(new ArrayList<>());
             }
 
             postDAO.insert(post);
@@ -474,14 +491,6 @@ public class PostServiceimpl implements PostService {
                 post.setTotalViews(post.getTotalViews()+1);
                 postDAO.update(post);
 
-                Date creationDate = post.getCreationDate();
-                Date now = new Date();
-
-                long diff = now.getTime() - creationDate.getTime();
-//                long diffMinutes = diff / (60 * 1000) % 60;
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                Integer i = (int) (long) minutes;
-                post.setTime(i);
 
                 //chamar o dao que faz o aggregate e retorna uma lista
                 List<Comment> comments = postInfoDAO.listActiveComments(post.getId(), 3);
@@ -515,6 +524,24 @@ public class PostServiceimpl implements PostService {
                     }else {
                         post.setFgFavorite(false);
                     }
+
+                    if (post.getType() == PostTypeEnum.SURVEY){
+
+                        // verifica se o post do tipo SURVEY já foi respondido pelo usuário
+                        List<String> listUsersAnswered = post.getSurvey().getListUsers();
+
+                        String idUser = listUsersAnswered.stream()
+                                .filter(p -> p.equals(postSearch.getIdUser()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (idUser != null) {
+                            post.setFgSurveyAnswered(true);
+                        }else {
+                            post.setFgSurveyAnswered(false);
+                        }
+                    }
+
 
                 }
             }

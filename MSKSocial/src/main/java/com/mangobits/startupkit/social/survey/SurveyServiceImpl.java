@@ -3,12 +3,14 @@ package com.mangobits.startupkit.social.survey;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostDAO;
+import com.mangobits.startupkit.user.User;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
+import java.util.List;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -20,7 +22,7 @@ public class SurveyServiceImpl implements SurveyService {
 
 
     @Override
-    public Post saveVote(SurveyOption surveyOption) throws Exception {
+    public Post saveVote (SurveyOption surveyOption, User user) throws Exception {
 
         if(surveyOption.getIdPost() == null){
             throw new BusinessException("missing_idPost");
@@ -36,6 +38,15 @@ public class SurveyServiceImpl implements SurveyService {
         }
         if (post.getSurvey() == null){
             throw new BusinessException("no_survey_found");
+        }
+
+        String idUser = post.getSurvey().getListUsers().stream()
+                .filter(p -> p.equals(user.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (idUser != null){
+            throw new BusinessException("user_already_answered_survey");
         }
 
         if (post.getSurvey().getListSurveyOptions() == null){
@@ -60,6 +71,9 @@ public class SurveyServiceImpl implements SurveyService {
 
         post.getSurvey().setTotalVotes(post.getSurvey().getTotalVotes() + 1);
 
+        post.getSurvey().getListUsers().add(user.getId());
+
+
         for (SurveyOption item: post.getSurvey().getListSurveyOptions()){
             if (item.getNumberOfVotes() == null){
                 item.setNumberOfVotes(0d);
@@ -71,4 +85,6 @@ public class SurveyServiceImpl implements SurveyService {
         return post;
 
     }
+
+
 }

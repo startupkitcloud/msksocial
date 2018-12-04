@@ -55,7 +55,12 @@ public class Post {
 
 
     @Transient
-    private Integer time;
+    private Boolean fgSurveyAnswered;
+
+
+    private Boolean fgNotification;
+
+
 
     @Transient
     private Double distance;
@@ -169,13 +174,6 @@ public class Post {
         this.status = status;
     }
 
-    public Integer getTime() {
-        return time;
-    }
-
-    public void setTime(Integer time) {
-        this.time = time;
-    }
 
     public Double getDistance() {
         return distance;
@@ -292,6 +290,22 @@ public class Post {
 
     public void setSurvey(Survey survey) {
         this.survey = survey;
+    }
+
+    public Boolean getFgNotification() {
+        return fgNotification;
+    }
+
+    public void setFgNotification(Boolean fgNotification) {
+        this.fgNotification = fgNotification;
+    }
+
+    public Boolean getFgSurveyAnswered() {
+        return fgSurveyAnswered;
+    }
+
+    public void setFgSurveyAnswered(Boolean fgSurveyAnswered) {
+        this.fgSurveyAnswered = fgSurveyAnswered;
     }
 
 }

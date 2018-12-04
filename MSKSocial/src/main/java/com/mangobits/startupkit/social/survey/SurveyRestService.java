@@ -1,8 +1,10 @@
 package com.mangobits.startupkit.social.survey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostService;
+import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
 import com.mangobits.startupkit.ws.JsonContainer;
@@ -34,7 +36,12 @@ public class SurveyRestService  extends UserBaseRestService {
 
         try {
 
-            Post post = surveyService.saveVote(surveyOption);
+            User user = getUserTokenSession();
+            if (user == null){
+                throw new BusinessException("user_not_found");
+            }
+
+            Post post = surveyService.saveVote(surveyOption, user);
             cont.setData(post);
 
         } catch (Exception e) {
