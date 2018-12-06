@@ -10,6 +10,8 @@ import com.mangobits.startupkit.notification.NotificationBuilder;
 import com.mangobits.startupkit.notification.NotificationService;
 import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
 import com.mangobits.startupkit.social.comment.Comment;
+import com.mangobits.startupkit.social.groupInfo.GroupInfo;
+import com.mangobits.startupkit.social.groupInfo.GroupInfoDAO;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.post.*;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
@@ -40,6 +42,10 @@ public class GroupServiceImpl implements GroupService {
     @Inject
     private GroupDAO groupDAO;
 
+    @New
+    @Inject
+    private GroupInfoDAO groupInfoDAO;
+
     @EJB
     private UserService userService;
 
@@ -65,49 +71,73 @@ public class GroupServiceImpl implements GroupService {
         if (group == null){
             throw new BusinessException("group_not_found");
         }
-        group.setNumberOfMembers(group.getListUsers().size());
+
+        GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(idGroup));
+        if (groupInfo == null || groupInfo.getListUsers() == null) {
+            group.setNumberOfMembers(0);
+        }else {
+            group.setNumberOfMembers(groupInfo.getListUsers().size());
+        }
 
         return group;
     }
 
     @Override
-    public Group save (Group group, User userAdmin) throws Exception {
+    public Group save (Group group, User user) throws Exception {
 
 
-        if (userAdmin.getStatus() == UserStatusEnum.BLOCKED){
+        if (user.getStatus() == UserStatusEnum.BLOCKED){
             throw new BusinessException("user_blocked");
         }
 
-        if(group.getStatus() == null){
-            group.setStatus(SimpleStatusEnum.ACTIVE);
-        }
 
         if(group.getId() == null){
 
             group.setCreationDate(new Date());
+            group.setStatus(SimpleStatusEnum.ACTIVE);
+
             groupDAO.insert(group);
 
-            group.setListUsers(new ArrayList<>());
+//            group.setListUsers(new ArrayList<>());
 
             UserGroup userGroup = new UserGroup();
-            userGroup.setIdUser(userAdmin.getId());
+            userGroup.setIdUser(user.getId());
             userGroup.setFgAdmin(true);
             userGroup.setIdGroup(group.getId());
-            userGroup.setNameUser(userAdmin.getName());
-            group.getListUsers().add(userGroup);
+            userGroup.setNameUser(user.getName());
 
-            groupDAO.update(group);
+            // adiciona o user no groupInfo
+            GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(userGroup.getIdGroup()));
+            if (groupInfo == null){
+                groupInfo = new GroupInfo();
+                groupInfo.setId(group.getId());
+            }
+            if (groupInfo.getListUsers() == null){
+                groupInfo.setListUsers(new ArrayList<>());
+            }
+            groupInfo.getListUsers().add(userGroup);
+            groupInfoDAO.insert(groupInfo);
+
 
         }else {
 
-            if (group.getListUsers().size() == 0){
-                UserGroup userGroup = new UserGroup();
-                userGroup.setIdUser(userAdmin.getId());
-                userGroup.setFgAdmin(true);
-                userGroup.setIdGroup(group.getId());
-                userGroup.setNameUser(userAdmin.getName());
-                group.getListUsers().add(userGroup);
+            GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(group.getId()));
+            if (groupInfo == null) {
+                throw new BusinessException("groupInfo_not_found");
             }
+
+            UserGroup userGroupBaseAdmin = groupInfo.getListUsers().stream()
+                    .filter(p -> p.getIdUser().equals(user.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (userGroupBaseAdmin == null){
+                throw new BusinessException("user_not_found_inside_group");
+            }
+            if (!userGroupBaseAdmin.getFgAdmin()){
+                throw new BusinessException("user_not_admin");
+            }
+
             new BusinessUtils<>(groupDAO).basicSave(group);
         }
 
@@ -141,11 +171,11 @@ public class GroupServiceImpl implements GroupService {
 
         Group group = retrieve(userGroup.getIdGroup());
 
-        if (group.getListUsers() == null){
-            throw new BusinessException("no_userAdmin_on_group");
-        }
 
-        UserGroup userGroupBaseAdmin = group.getListUsers().stream()
+        // adiciona o user no groupInfo
+        GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(userGroup.getIdGroup()));
+
+        UserGroup userGroupBaseAdmin = groupInfo.getListUsers().stream()
                 .filter(p -> p.getIdUser().equals(userAdmin.getId()))
                 .findFirst()
                 .orElse(null);
@@ -158,7 +188,7 @@ public class GroupServiceImpl implements GroupService {
         }
 
 
-        UserGroup userGroupBase = group.getListUsers().stream()
+        UserGroup userGroupBase = groupInfo.getListUsers().stream()
                 .filter(p -> p.getIdUser().equals(userGroup.getIdUser()))
                 .findFirst()
                 .orElse(null);
@@ -166,8 +196,16 @@ public class GroupServiceImpl implements GroupService {
         if (userGroupBase != null){
             throw new BusinessException("user_already_member");
         }
-        group.getListUsers().add(userGroup);
-        groupDAO.update(group);
+
+        if (groupInfo.getListUsers() == null){
+            groupInfo.setListUsers(new ArrayList<>());
+        }
+        if (userGroup.getNameUser() == null && user.getName() != null){
+            userGroup.setNameUser(user.getName());
+        }
+        groupInfo.getListUsers().add(userGroup);
+        groupInfoDAO.update(groupInfo);
+
 
         sendNotification(user, group.getTitle(), group.getId(), "Você foi adicionado no grupo", "GROUP", group.getCategory());
 
@@ -190,15 +228,17 @@ public class GroupServiceImpl implements GroupService {
         }
 
         Group group = retrieve(userGroup.getIdGroup());
-        if (group == null){
-            throw new BusinessException("group_not_found");
+
+        GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(userGroup.getIdGroup()));
+        if (groupInfo == null){
+            throw new BusinessException("groupInfo_not_found");
         }
 
-        if (group.getListUsers() == null){
-           throw new BusinessException("group_empty");
+        if (groupInfo.getListUsers() == null){
+           throw new BusinessException("groupInfo_empty");
         }
 
-        UserGroup userGroupBaseAdmin = group.getListUsers().stream()
+        UserGroup userGroupBaseAdmin = groupInfo.getListUsers().stream()
                 .filter(p -> p.getIdUser().equals(userAdmin.getId()))
                 .findFirst()
                 .orElse(null);
@@ -210,7 +250,7 @@ public class GroupServiceImpl implements GroupService {
             throw new BusinessException("userAdmin_not_admin");
         }
 
-        UserGroup userGroupBase = group.getListUsers().stream()
+        UserGroup userGroupBase = groupInfo.getListUsers().stream()
                 .filter(p -> p.getIdUser().equals(userGroup.getIdUser()))
                 .findFirst()
                 .orElse(null);
@@ -218,12 +258,11 @@ public class GroupServiceImpl implements GroupService {
         if (userGroupBase == null){
             throw new BusinessException("user_not_member");
         }
-        group.getListUsers().remove(userGroupBase);
+        groupInfo.getListUsers().remove(userGroupBase);
 
-        groupDAO.update(group);
+        groupInfoDAO.update(groupInfo);
 
         sendNotification(user, group.getTitle(), group.getId(), "Você saiu do grupo", "GROUP", group.getCategory());
-
 
     }
 
@@ -272,21 +311,21 @@ public class GroupServiceImpl implements GroupService {
         //ordena
         List<Group> list = this.groupDAO.search(searchBuilder.build());
 
-        List<Group> listUserGroups = new ArrayList<>();
-
-        for (Group group: list){
-
-            UserGroup user = group.getListUsers().stream()
-                    .filter(p -> p.getIdUser().equals(idUser))
-                    .findFirst()
-                    .orElse(null);
-
-            if (user != null){
-                listUserGroups.add(group);
-            }
-
-            list = listUserGroups;
-        }
+//        List<Group> listUserGroups = new ArrayList<>();
+//
+//        for (Group group: list){
+//
+//            UserGroup user = group.getListUsers().stream()
+//                    .filter(p -> p.getIdUser().equals(idUser))
+//                    .findFirst()
+//                    .orElse(null);
+//
+//            if (user != null){
+//                listUserGroups.add(group);
+//            }
+//
+//            list = listUserGroups;
+//        }
         return list;
     }
 

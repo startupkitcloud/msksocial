@@ -28,8 +28,8 @@ public class Group {
     @Field
     private Date creationDate;
 
-    @ElementCollection(fetch= FetchType.EAGER)
-    private List<UserGroup> listUsers;
+//    @ElementCollection(fetch= FetchType.EAGER)
+//    private List<UserGroup> listUsers;
 
     @Field
     private String category; //userPreference
@@ -73,13 +73,13 @@ public class Group {
         this.creationDate = creationDate;
     }
 
-    public List<UserGroup> getListUsers() {
-        return listUsers;
-    }
-
-    public void setListUsers(List<UserGroup> listUsers) {
-        this.listUsers = listUsers;
-    }
+//    public List<UserGroup> getListUsers() {
+//        return listUsers;
+//    }
+//
+//    public void setListUsers(List<UserGroup> listUsers) {
+//        this.listUsers = listUsers;
+//    }
 
     public String getCategory() {
         return category;

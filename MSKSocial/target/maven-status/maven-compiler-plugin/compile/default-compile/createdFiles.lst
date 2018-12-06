@@ -10,6 +10,7 @@ com/mangobits/startupkit/social/userFavorites/UserFavorites.class
 com/mangobits/startupkit/social/survey/SurveyRestService.class
 com/mangobits/startupkit/social/spider/SpiderServiceImpl.class
 com/mangobits/startupkit/social/spider/SpiderBot.class
+com/mangobits/startupkit/social/groupInfo/GroupInfoDAO.class
 com/mangobits/startupkit/social/post/PostRestService$1.class
 com/mangobits/startupkit/social/post/PostSearch.class
 com/mangobits/startupkit/social/group/GroupService.class
@@ -24,10 +25,13 @@ com/mangobits/startupkit/social/like/LikesRestService.class
 com/mangobits/startupkit/social/postInfo/PostInfoServiceImpl.class
 com/mangobits/startupkit/social/post/PostService.class
 com/mangobits/startupkit/social/postInfo/PostInfo.class
+com/mangobits/startupkit/social/groupInfo/GroupInfo.class
 com/mangobits/startupkit/social/like/LikesService.class
 com/mangobits/startupkit/social/post/PostDAO.class
+com/mangobits/startupkit/social/groupInfo/GroupInfoServiceImpl.class
 com/mangobits/startupkit/social/like/LikesServiceImpl.class
 com/mangobits/startupkit/social/post/Post.class
+com/mangobits/startupkit/social/groupInfo/GroupInfoService.class
 com/mangobits/startupkit/social/spider/SpiderService.class
 com/mangobits/startupkit/social/spider/Spider.class
 com/mangobits/startupkit/social/postInfo/PostInfoDAO.class

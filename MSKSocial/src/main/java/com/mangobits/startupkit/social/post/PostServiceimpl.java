@@ -21,6 +21,8 @@ import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.group.Group;
 import com.mangobits.startupkit.social.group.GroupService;
 import com.mangobits.startupkit.social.group.UserGroup;
+import com.mangobits.startupkit.social.groupInfo.GroupInfo;
+import com.mangobits.startupkit.social.groupInfo.GroupInfoService;
 import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
@@ -82,6 +84,9 @@ public class PostServiceimpl implements PostService {
 
     @EJB
     private GroupService groupService;
+
+    @EJB
+    private GroupInfoService groupInfoService;
 
     @EJB
     private UserService userService;
@@ -234,15 +239,18 @@ public class PostServiceimpl implements PostService {
     @Asynchronous
     private void sendGroupMessage(String idGroup, String idPost) throws Exception{
 
+        GroupInfo groupInfo = groupInfoService.retrieve(idGroup);
+
         Group group = groupService.load(idGroup);
 
-        if (group == null){
-            throw new BusinessException("group_not_found");
+
+        if (groupInfo == null){
+            throw new BusinessException("groupInfo_not_found");
 
         }
-        if (group.getListUsers() != null){
+        if (groupInfo.getListUsers() != null){
 
-            for (UserGroup userGroup : group.getListUsers()){
+            for (UserGroup userGroup : groupInfo.getListUsers()){
                 User user = userService.retrieve(userGroup.getIdUser());
                 sendNotification(user, group.getTitle(), idPost, group.getId(),"Publicou um post", "GROUP_POST");
 

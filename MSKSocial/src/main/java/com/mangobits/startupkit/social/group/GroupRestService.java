@@ -10,6 +10,8 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.service.admin.util.AdminBaseRestService;
+import com.mangobits.startupkit.social.comment.Comment;
+import com.mangobits.startupkit.social.groupInfo.GroupInfoService;
 import com.mangobits.startupkit.social.post.Post;
 import com.mangobits.startupkit.social.post.PostSearch;
 import com.mangobits.startupkit.social.post.PostService;
@@ -36,6 +38,9 @@ public class GroupRestService extends UserBaseRestService {
 
     @EJB
     private GroupService groupService;
+
+    @EJB
+    private GroupInfoService groupInfoService;
 
     @EJB
     private ConfigurationService configurationService;
@@ -260,6 +265,28 @@ public class GroupRestService extends UserBaseRestService {
             handleException(cont, e, "searching groups");
         }
 
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @GET
+    @Path("/listActiveUsers/{idGroup}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listAllCommentsByPost(@PathParam("idGroup") String idGroup) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            List<UserGroup> list = groupInfoService.listActiveUsers(idGroup);
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "listing group members");
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         resultStr = mapper.writeValueAsString(cont);

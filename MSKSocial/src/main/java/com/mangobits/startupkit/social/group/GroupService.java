@@ -8,7 +8,7 @@ import java.util.List;
 @Local
 public interface GroupService {
 
-    Group save (Group group, User userAdmin) throws Exception;
+    Group save (Group group, User user) throws Exception;
 
   void addUser(UserGroup userGroup, User userAdmin) throws Exception;
 
