@@ -51,4 +51,6 @@ public interface PostService {
 
     void saveVideo(PhotoUpload photoUpload) throws Exception;
 
+    void saveVideoByParts(PhotoUpload photoUpload) throws Exception;
+
 }

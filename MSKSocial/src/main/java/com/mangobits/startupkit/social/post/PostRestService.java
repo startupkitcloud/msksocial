@@ -432,6 +432,30 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+    @POST
+    @Path("/saveVideoByParts")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String saveVideoByParts(PhotoUpload photoUpload) throws Exception{
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.saveVideoByParts(photoUpload);
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "saving post video");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
 
     @SecuredUser
     @POST

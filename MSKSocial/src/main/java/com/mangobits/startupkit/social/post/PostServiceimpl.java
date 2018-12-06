@@ -13,6 +13,7 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
+import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.notification.NotificationBuilder;
 import com.mangobits.startupkit.notification.NotificationService;
 import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
@@ -35,7 +36,9 @@ import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.preference.Preference;
 import com.mangobits.startupkit.user.preference.PreferenceService;
 import com.mangobits.startupkit.user.preference.UserPreferences;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -49,6 +52,7 @@ import org.jsoup.nodes.Element;
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -374,7 +378,10 @@ public class PostServiceimpl implements PostService {
     @Override
     public List<Post> listPending() throws Exception {
 
-        List<Post> list = this.postDAO.search((new SearchBuilder()).appendParam("status", PostStatusEnum.PENDING).build());
+       SearchBuilder searchBuilder = new SearchBuilder();
+       searchBuilder.appendParam("status", PostStatusEnum.PENDING);
+       Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, false));
+       List<Post> list = this.postDAO.search(searchBuilder.build());
 
         return list;
     }
@@ -452,12 +459,12 @@ public class PostServiceimpl implements PostService {
                 }
 
                 List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
-                if(!listPreferences.isEmpty()){
-                    BooleanJunction<?> bjPref = sb.getQueryBuilder().bool();
-                    for(Preference preference : listPreferences){
-                        bjPref.should(sb.getQueryBuilder().keyword().onField("listTags").matching(preference.getId()).createQuery());
+                if(!listPreferences.isEmpty()) {
+                    BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
+                    for(Preference pref : listPreferences){
+                        bjGroup.should(sb.getQueryBuilder().keyword().onField("listTags").matching(pref.getName()).createQuery());
                     }
-                    qb = qb.add(bjPref.createQuery(), BooleanClause.Occur.SHOULD);
+                    qb = qb.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
 
                     totalShoud = 1;
                 }
@@ -550,7 +557,6 @@ public class PostServiceimpl implements PostService {
         return list;
     }
 
-
     @Override
     public Post retrieve(String idPost) throws Exception {
 
@@ -630,6 +636,39 @@ public class PostServiceimpl implements PostService {
 
         new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
     }
+
+    @Override
+    public void saveVideoByParts(PhotoUpload photoUpload) throws Exception {
+        String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
+
+      if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")){
+          // adiciona o texto
+            BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
+            writer.append(photoUpload.getPhoto());
+            writer.close();
+
+            //pega o texto (base64) inteiro e salva o vídeo
+            FileInputStream inputStream = new FileInputStream(filePath);
+            try {
+                String everything = IOUtils.toString(inputStream);
+                if (everything != null){
+                    photoUpload.setPhoto(everything);
+                    saveVideo(photoUpload);
+                }
+            } finally {
+                inputStream.close();
+            }
+
+        }else {
+
+          // cria o arquivo e/ou adiciona o texto
+            BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
+            writer.append(photoUpload.getPhoto());
+            writer.close();
+        }
+
+    }
+
 
     @Override
     public List<Post> searchByNewsUrl(String newsUrl) throws Exception {
