@@ -53,7 +53,6 @@ import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 @Stateless
@@ -88,8 +87,6 @@ public class PostServiceimpl implements PostService {
     @EJB
     private UserService userService;
 
-    @EJB
-    private SurveyService surveyService;
 
     @EJB
     private PreferenceService preferenceService;
@@ -452,11 +449,16 @@ public class PostServiceimpl implements PostService {
 
                 int totalShoud = 0;
 
-                List<Group> listGroups = groupService.listByUser(postSearch.getIdUser());
-                if(!listGroups.isEmpty()){
+                UserSocial userSocial = userSocialService.retrieve(postSearch.getIdUser());
+                List<String> listIdGroups = new ArrayList<>();
+                if (userSocial != null && userSocial.getListGroups() != null && userSocial.getListGroups().size() > 0){
+                    listIdGroups = userSocial.getListGroups();
+                }
+
+                if(!listIdGroups.isEmpty()){
                     BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
-                    for(Group group : listGroups){
-                        bjGroup.should(sb.getQueryBuilder().keyword().onField("idGroup").matching(group.getId()).createQuery());
+                    for(String idGroup : listIdGroups){
+                        bjGroup.should(sb.getQueryBuilder().keyword().onField("idGroup").matching(idGroup).createQuery());
                     }
                     qb = qb.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
 
@@ -489,7 +491,6 @@ public class PostServiceimpl implements PostService {
         }
 
         //ordena
-
         List<Post> list = postDAO.search(sb.build());
 
         //atualiza todos com com view + 1
@@ -874,8 +875,5 @@ public class PostServiceimpl implements PostService {
 
         return path;
     }
-
-
-
 
 }
