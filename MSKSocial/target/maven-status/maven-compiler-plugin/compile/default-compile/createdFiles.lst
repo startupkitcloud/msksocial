@@ -4,9 +4,8 @@ com/mangobits/startupkit/social/like/LikesDAO.class
 com/mangobits/startupkit/social/post/PostTypeEnum.class
 com/mangobits/startupkit/social/post/PostServiceimpl.class
 com/mangobits/startupkit/social/survey/SurveyOption.class
+com/mangobits/startupkit/social/userSocial/UserSocialService.class
 com/mangobits/startupkit/social/group/GroupRestService.class
-com/mangobits/startupkit/social/userFavorites/UserFavoritesDAO.class
-com/mangobits/startupkit/social/userFavorites/UserFavorites.class
 com/mangobits/startupkit/social/survey/SurveyRestService.class
 com/mangobits/startupkit/social/spider/SpiderServiceImpl.class
 com/mangobits/startupkit/social/spider/SpiderBot.class
@@ -20,7 +19,9 @@ com/mangobits/startupkit/social/survey/SurveyServiceImpl.class
 com/mangobits/startupkit/social/spider/InfoUrl.class
 com/mangobits/startupkit/social/post/PostRestService$MediaStreamer.class
 com/mangobits/startupkit/social/group/Group.class
+com/mangobits/startupkit/social/userSocial/UserSocialDAO.class
 com/mangobits/startupkit/social/post/PostStatusEnum.class
+com/mangobits/startupkit/social/userSocial/UserSocialServiceImpl.class
 com/mangobits/startupkit/social/like/LikesRestService.class
 com/mangobits/startupkit/social/postInfo/PostInfoServiceImpl.class
 com/mangobits/startupkit/social/post/PostService.class
@@ -40,9 +41,8 @@ com/mangobits/startupkit/social/postInfo/PostInfoService.class
 com/mangobits/startupkit/social/like/Like.class
 com/mangobits/startupkit/social/comment/Comment.class
 com/mangobits/startupkit/social/group/GroupSearch.class
-com/mangobits/startupkit/social/userFavorites/UserFavoritesServiceImpl.class
 com/mangobits/startupkit/social/survey/Survey.class
 com/mangobits/startupkit/social/group/GroupRestService$1.class
+com/mangobits/startupkit/social/userSocial/UserSocial.class
 com/mangobits/startupkit/social/group/GroupDAO.class
-com/mangobits/startupkit/social/userFavorites/UserFavoritesService.class
 com/mangobits/startupkit/social/survey/SurveyService.class

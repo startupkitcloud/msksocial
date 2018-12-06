@@ -2,7 +2,6 @@ package com.mangobits.startupkit.social.post;
 
 
 import com.mangobits.startupkit.core.address.AddressUtils;
-import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
@@ -13,7 +12,6 @@ import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
-import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.notification.NotificationBuilder;
 import com.mangobits.startupkit.notification.NotificationService;
 import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
@@ -30,15 +28,15 @@ import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.survey.SurveyOption;
 import com.mangobits.startupkit.social.survey.SurveyService;
-import com.mangobits.startupkit.social.userFavorites.UserFavorites;
-import com.mangobits.startupkit.social.userFavorites.UserFavoritesService;
+
+import com.mangobits.startupkit.social.userSocial.UserSocial;
+import com.mangobits.startupkit.social.userSocial.UserSocialService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.UserCard;
 import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.preference.Preference;
 import com.mangobits.startupkit.user.preference.PreferenceService;
-import com.mangobits.startupkit.user.preference.UserPreferences;
-import org.apache.commons.codec.binary.Base64;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,7 +45,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.search.query.dsl.BooleanJunction;
-import org.hibernate.search.spatial.DistanceSortField;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -99,7 +96,7 @@ public class PostServiceimpl implements PostService {
 
 
     @EJB
-    private UserFavoritesService userFavoritesService;
+    private UserSocialService userSocialService;
 
     @EJB
     private NotificationService notificationService;
@@ -755,7 +752,7 @@ public class PostServiceimpl implements PostService {
     @Override
     public Boolean favorite (String idPost, String idUser) throws Exception {
 
-       Boolean remove = userFavoritesService.favoritePost(idPost, idUser);
+       Boolean remove = userSocialService.favoritePost(idPost, idUser);
 
        return remove;
 
@@ -764,11 +761,11 @@ public class PostServiceimpl implements PostService {
 
     private List<String> listPostFavorite(String idUser) throws Exception {
 
-        UserFavorites userFavorites =  userFavoritesService.load(idUser);
+        UserSocial userSocial =  userSocialService.retrieve(idUser);
         List<String> list = new ArrayList<>();
 
-        if (userFavorites != null && userFavorites.getListFavorites() != null) {
-            list = userFavorites.getListFavorites();
+        if (userSocial != null && userSocial.getListFavorites() != null) {
+            list = userSocial.getListFavorites();
         }
 
         return list;

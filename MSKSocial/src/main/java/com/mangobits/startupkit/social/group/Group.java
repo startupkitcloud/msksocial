@@ -2,7 +2,6 @@ package com.mangobits.startupkit.social.group;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
-import com.mangobits.startupkit.social.post.PostStatusEnum;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -10,7 +9,6 @@ import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name= "group")
@@ -27,9 +25,6 @@ public class Group {
 
     @Field
     private Date creationDate;
-
-//    @ElementCollection(fetch= FetchType.EAGER)
-//    private List<UserGroup> listUsers;
 
     @Field
     private String category; //userPreference
@@ -73,13 +68,6 @@ public class Group {
         this.creationDate = creationDate;
     }
 
-//    public List<UserGroup> getListUsers() {
-//        return listUsers;
-//    }
-//
-//    public void setListUsers(List<UserGroup> listUsers) {
-//        this.listUsers = listUsers;
-//    }
 
     public String getCategory() {
         return category;

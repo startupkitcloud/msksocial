@@ -1,7 +1,7 @@
-package com.mangobits.startupkit.social.userFavorites;
+package com.mangobits.startupkit.social.userSocial;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mangobits.startupkit.social.post.Post;
+import com.mangobits.startupkit.social.group.UserGroup;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -13,12 +13,12 @@ import javax.persistence.Id;
 import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Entity(name="userFavorites")
+@Entity(name="userSocial")
 @Indexed
-public class UserFavorites {
+public class UserSocial {
 
 
-    // idUser
+
     @Id
     @DocumentId
     private String id;
@@ -28,6 +28,9 @@ public class UserFavorites {
     @ElementCollection(fetch= FetchType.EAGER)
     private List<String> listFavorites;
 
+    @IndexedEmbedded
+    @ElementCollection(fetch= FetchType.EAGER)
+    private List<String> listGroups;
 
     public String getId() {
         return id;
@@ -45,11 +48,18 @@ public class UserFavorites {
         this.listFavorites = listFavorites;
     }
 
-    public UserFavorites(){
+    public List<String> getListGroups() {
+        return listGroups;
     }
 
-    public UserFavorites(String id){
+    public void setListGroups(List<String> listGroups) {
+        this.listGroups = listGroups;
+    }
+
+    public UserSocial(){
+    }
+
+    public UserSocial(String id){
         this.id = id;
     }
-
 }
