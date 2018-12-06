@@ -781,34 +781,40 @@ public class PostServiceimpl implements PostService {
 
         List<String> listidPost = listPostFavorite(postSearch.getIdUser());
 
-        SearchBuilder searchBuilder = new SearchBuilder();
-        searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
-        searchBuilder.appendParam("in:id", listidPost);
+        List<Post> list = new ArrayList<>();
 
-        if (postSearch.getLat() != null && postSearch.getLog() != null){
-            searchBuilder.setProjection(new SearchProjection(postSearch.getLat(),postSearch.getLog(), "address", "distance"));
-        }
 
-        //ordena
-        List<Post> list = this.postDAO.search(searchBuilder.build());
+        if (listidPost.size() > 0) {
 
-        // verifica se o post foi curtido
-        List<String> listIdPostLiked = listIdPostLiked(postSearch.getIdUser());
+            SearchBuilder searchBuilder = new SearchBuilder();
+            searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
+            searchBuilder.appendParam("in:id", listidPost);
 
-        for (Post post : list){
-
-            String postLiked = listIdPostLiked.stream()
-                    .filter(p -> p.equals(post.getId()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (postLiked != null) {
-                post.setFgLiked(true);
-            }else {
-                post.setFgLiked(false);
+            if (postSearch.getLat() != null && postSearch.getLog() != null) {
+                searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
             }
 
-            post.setFgFavorite(true);
+            //ordena
+            list = this.postDAO.search(searchBuilder.build());
+
+            // verifica se o post foi curtido
+            List<String> listIdPostLiked = listIdPostLiked(postSearch.getIdUser());
+
+            for (Post post : list) {
+
+                String postLiked = listIdPostLiked.stream()
+                        .filter(p -> p.equals(post.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (postLiked != null) {
+                    post.setFgLiked(true);
+                } else {
+                    post.setFgLiked(false);
+                }
+
+                post.setFgFavorite(true);
+            }
         }
 
         return list;

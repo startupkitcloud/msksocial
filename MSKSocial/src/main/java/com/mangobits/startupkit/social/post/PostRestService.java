@@ -255,39 +255,43 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
-//    @SecuredUser
-//    @GET
-//    @Path("/listFavorites/{idUser}")
-//    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-//    public String listFavorites(@PathParam("idUser") String idUser) throws Exception {
-//
-//        String resultStr;
-//        JsonContainer cont = new JsonContainer();
-//
-//        User user = getUserTokenSession();
-//        if (user == null){
-//            throw new BusinessException("user_not_found");
-//        }
-//        Double lat = null;
-//        Double log = null;
-//        if (user.getLastAddress()!= null && user.getLastAddress().getLatitude() != null){
-//            lat = user.getLastAddress().getLatitude();
-//            log = user.getLastAddress().getLongitude();
-//        }
-//
-//        try {
-//            List<Post> list = postService.listFavorites(idUser, lat, log);
-//            cont.setData(list);
-//
-//        } catch (Exception e) {
-//            handleException(cont, e, "listing favorites");
-//        }
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        resultStr = mapper.writeValueAsString(cont);
-//
-//        return resultStr;
-//    }
+    @SecuredUser
+    @GET
+    @Path("/listFavorites/{idUser}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listFavorites(@PathParam("idUser") String idUser) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        User user = getUserTokenSession();
+        if (user == null){
+            throw new BusinessException("user_not_found");
+        }
+        Double lat = null;
+        Double log = null;
+        if (user.getLastAddress()!= null && user.getLastAddress().getLatitude() != null){
+            lat = user.getLastAddress().getLatitude();
+            log = user.getLastAddress().getLongitude();
+        }
+
+        try {
+            PostSearch postSearch = new PostSearch();
+            postSearch.setIdUser(idUser);
+            postSearch.setLat(lat);
+            postSearch.setLog(log);
+            List<Post> list = postService.listFavorites(postSearch);
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "listing favorites");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
 
     @SecuredUser
     @POST

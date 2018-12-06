@@ -75,7 +75,7 @@ public class Post {
     @Transient
     private Boolean fgFavorite;
 
-
+    @Field
     @IndexedEmbedded
     @ElementCollection(fetch=FetchType.EAGER)
     private List<String> listTags;
