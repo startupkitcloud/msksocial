@@ -170,6 +170,7 @@ public class PostServiceimpl implements PostService {
 
     }
 
+
     private void sendPostNewsNotification(Post post) throws Exception {
 
         List<UserCard> listUserCard = this.userService.listAll();
@@ -178,7 +179,7 @@ public class PostServiceimpl implements PostService {
 
             for(UserCard userCard : listUserCard){
                 User user = userService.retrieve(userCard.getId());
-                String title = "Foi postado um novo post:";
+                String title = post.getInfoUrl().getTitle();
                 String message = "";
                 if (post.getTitle() != null){
                     message = post.getTitle();
