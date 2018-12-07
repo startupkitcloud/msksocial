@@ -298,15 +298,6 @@ public class PostServiceimpl implements PostService {
         }
         postBase.setComments(postBase.getComments() + 1);
 
-        // pega os 3 últimos posts e adiciona no postBase
-        List<Comment> allComments = postInfo.getListActiveComments();
-        int subListCount = allComments.size();
-        if (subListCount > 3){
-           subListCount = 3;
-        }
-        List<Comment> lastComments = postInfo.getListActiveComments().subList(0, subListCount);
-        postBase.setLastComments(lastComments);
-
         postDAO.update(postBase);
 
     }
@@ -360,10 +351,6 @@ public class PostServiceimpl implements PostService {
         if (postBase.getComments() > 0){
             postBase.setComments(postBase.getComments() - 1);
         }
-
-        // pega os 3 últimos posts e adiciona no postBase
-        List<Comment> lastComments = postInfo.getListActiveComments().subList(0, 2);
-        postBase.setLastComments(lastComments);
 
         postDAO.update(postBase);
 

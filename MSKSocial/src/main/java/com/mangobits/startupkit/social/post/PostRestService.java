@@ -508,7 +508,7 @@ public class PostRestService  extends UserBaseRestService {
         try {
 
             postService.addComment(comment);
-            cont.setDesc("OK");
+            cont.setData("OK");
 
         } catch (Exception e) {
 
@@ -547,7 +547,7 @@ public class PostRestService  extends UserBaseRestService {
             }
 
             postService.removeComment(comment, user.getId());
-            cont.setDesc("OK");
+            cont.setData("OK");
 
         } catch (Exception e) {
 
