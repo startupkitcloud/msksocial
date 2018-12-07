@@ -383,7 +383,9 @@ public class PostServiceimpl implements PostService {
        SearchBuilder searchBuilder = new SearchBuilder();
        searchBuilder.appendParam("status", PostStatusEnum.PENDING);
        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, false));
-       List<Post> list = this.postDAO.search(searchBuilder.build());
+       searchBuilder.setSort(sort);
+
+        List<Post> list = this.postDAO.search(searchBuilder.build());
 
         return list;
     }
@@ -790,6 +792,10 @@ public class PostServiceimpl implements PostService {
             SearchBuilder searchBuilder = new SearchBuilder();
             searchBuilder.appendParam("status", PostStatusEnum.ACTIVE);
             searchBuilder.appendParam("in:id", listidPost);
+            Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+            searchBuilder.setSort(sort);
+
+
 
             if (postSearch.getLat() != null && postSearch.getLog() != null) {
                 searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));

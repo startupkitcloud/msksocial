@@ -275,7 +275,7 @@ public class GroupRestService extends UserBaseRestService {
     @GET
     @Path("/listActiveUsers/{idGroup}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public String listAllCommentsByPost(@PathParam("idGroup") String idGroup) throws Exception {
+    public String listActiveUsers(@PathParam("idGroup") String idGroup) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -286,6 +286,28 @@ public class GroupRestService extends UserBaseRestService {
 
         } catch (Exception e) {
             handleException(cont, e, "listing group members");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @GET
+    @Path("/listByUser/{idUser}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String listByUser(@PathParam("idUser") String idUser) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            List<Group> list = groupService.listByUser(idUser);
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "listing user groups");
         }
 
         ObjectMapper mapper = new ObjectMapper();

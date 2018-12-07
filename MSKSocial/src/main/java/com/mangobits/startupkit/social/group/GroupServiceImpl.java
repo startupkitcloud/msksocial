@@ -2,6 +2,7 @@ package com.mangobits.startupkit.social.group;
 
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
+import com.mangobits.startupkit.core.dao.OperationEnum;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
@@ -9,13 +10,10 @@ import com.mangobits.startupkit.core.utils.BusinessUtils;
 import com.mangobits.startupkit.notification.NotificationBuilder;
 import com.mangobits.startupkit.notification.NotificationService;
 import com.mangobits.startupkit.notification.TypeSendingNotificationEnum;
-import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.groupInfo.GroupInfo;
 import com.mangobits.startupkit.social.groupInfo.GroupInfoDAO;
 import com.mangobits.startupkit.social.groupInfo.GroupInfoService;
-import com.mangobits.startupkit.social.like.LikesService;
-import com.mangobits.startupkit.social.post.*;
-import com.mangobits.startupkit.social.postInfo.PostInfo;
+
 import com.mangobits.startupkit.social.userSocial.UserSocial;
 import com.mangobits.startupkit.social.userSocial.UserSocialService;
 import com.mangobits.startupkit.user.User;
@@ -32,7 +30,6 @@ import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -271,38 +268,28 @@ public class GroupServiceImpl implements GroupService {
         //ordena
         List<Group> list = this.groupDAO.search(searchBuilder.build());
 
-
-        if (groupSearch.getIdUser() != null) {
-            list = listByUser(groupSearch.getIdUser());
-        }
+//        if (groupSearch.getIdUser() != null) {
+//            list = listByUser(groupSearch.getIdUser());
+//        }
         return list;
     }
 
     @Override
     public List<Group> listByUser (String idUser) throws Exception {
 
-        SearchBuilder searchBuilder = new SearchBuilder();
-        searchBuilder.appendParam("status", SimpleStatusEnum.ACTIVE);
+        UserSocial userSocial = userSocialService.retrieve(idUser);
 
-        //ordena
-        List<Group> list = this.groupDAO.search(searchBuilder.build());
+        List<String> listIds = userSocial.getListGroups();
 
-//        List<Group> listUserGroups = new ArrayList<>();
-//
-//        for (Group group: list){
-//
-//            UserGroup user = group.getListUsers().stream()
-//                    .filter(p -> p.getIdUser().equals(idUser))
-//                    .findFirst()
-//                    .orElse(null);
-//
-//            if (user != null){
-//                listUserGroups.add(group);
-//            }
-//
-//            list = listUserGroups;
-//        }
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+
+        List<Group> list = groupDAO.search(groupDAO.createBuilder()
+                .appendParamQuery("id", listIds, OperationEnum.IN)
+                .setSort(sort)
+                .build());
+
         return list;
+
     }
 
 

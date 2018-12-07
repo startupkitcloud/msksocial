@@ -1,5 +1,6 @@
 package com.mangobits.startupkit.social.userSocial;
 
+import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.social.group.Group;
 import com.mangobits.startupkit.social.group.GroupService;
@@ -14,6 +15,7 @@ import javax.ejb.TransactionManagementType;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -147,6 +149,8 @@ public class UserSocialServiceImpl implements UserSocialService {
         userSocialDAO.update(userSocial);
 
     }
+
+
 
 
 }
