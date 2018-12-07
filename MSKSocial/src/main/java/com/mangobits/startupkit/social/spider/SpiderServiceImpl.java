@@ -190,11 +190,18 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             if(CollectionUtils.isNotEmpty(spider.getTags())){
 
                 String pageDoc = doc.toString().toUpperCase();
+                infoUrl.setListTags(new ArrayList<>());
 
+                boolean found = false;
                 for(String tag : spider.getTags()){
-                    if(!pageDoc.contains(tag.toUpperCase())){
-                        return null;
+                    if(pageDoc.toUpperCase().contains(tag.toUpperCase())){
+                       found = true;
+                       infoUrl.getListTags().add(tag);
                     }
+                }
+
+                if(!found){
+                    return null;
                 }
             }
 
@@ -252,6 +259,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             post.setInfoUrl(infoUrl);
             post.setType(PostTypeEnum.NEWS);
             post.setAddress(addressInfo);
+            post.setListTags(infoUrl.getListTags());
 
             postService.save(post, false);
 

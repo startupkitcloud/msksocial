@@ -1,9 +1,12 @@
 package com.mangobits.startupkit.social.spider;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
+import java.util.List;
 
 @Indexed
 @Embeddable
@@ -23,6 +26,11 @@ public class InfoUrl {
 
 
 	private String siteName;
+
+
+	@Transient
+	@JsonIgnore
+	private List<String> listTags;
 
 	
 	public String getUrl() {
@@ -64,5 +72,14 @@ public class InfoUrl {
 
 	public void setSiteName(String siteName) {
 		this.siteName = siteName;
+	}
+
+
+	public List<String> getListTags() {
+		return listTags;
+	}
+
+	public void setListTags(List<String> listTags) {
+		this.listTags = listTags;
 	}
 }
