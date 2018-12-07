@@ -35,9 +35,7 @@ public class Group {
     @Field
     private String desc;
 
-    @Transient
     private Integer numberOfMembers;
-
 
 
     @Field

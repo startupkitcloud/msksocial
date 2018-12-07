@@ -83,13 +83,6 @@ public class GroupServiceImpl implements GroupService {
             throw new BusinessException("group_not_found");
         }
 
-        GroupInfo groupInfo = groupInfoDAO.retrieve(new GroupInfo(idGroup));
-        if (groupInfo == null || groupInfo.getListUsers() == null) {
-            group.setNumberOfMembers(0);
-        }else {
-            group.setNumberOfMembers(groupInfo.getListUsers().size());
-        }
-
         return group;
     }
 
@@ -131,6 +124,14 @@ public class GroupServiceImpl implements GroupService {
 
             // adiciona o idGroup no listGroups do userSocial
             userSocialService.addGroup(group.getId(), userGroup.getIdUser());
+
+            // atualiza o numberOfMembers do group
+            int numberOfMembers = 0;
+            if (group.getNumberOfMembers() != null){
+                numberOfMembers = group.getNumberOfMembers();
+            }
+            group.setNumberOfMembers(numberOfMembers + 1);
+            new BusinessUtils<>(groupDAO).basicSave(group);
 
 
         }else {
@@ -195,6 +196,10 @@ public class GroupServiceImpl implements GroupService {
         // adiciona o idGroup no listGroups do userSocial
         userSocialService.addGroup(group.getId(), userGroup.getIdUser());
 
+        // atualiza o numberOfMembers do group
+        group.setNumberOfMembers(group.getNumberOfMembers() + 1);
+        new BusinessUtils<>(groupDAO).basicSave(group);
+
         // envia notificação
         sendNotification(user, group.getTitle(), group.getId(), "Você foi adicionado no grupo", "GROUP", group.getCategory());
 
@@ -226,6 +231,11 @@ public class GroupServiceImpl implements GroupService {
 
         // remove o idGroup do listGroups do userSocial
         userSocialService.removeGroup(group.getId(), userGroup.getIdUser());
+
+        // atualiza o numberOfMembers do group
+        group.setNumberOfMembers(group.getNumberOfMembers() - 1);
+        new BusinessUtils<>(groupDAO).basicSave(group);
+
 
         // envia notificacao
         sendNotification(user, group.getTitle(), group.getId(), "Você saiu do grupo", "GROUP", group.getCategory());
