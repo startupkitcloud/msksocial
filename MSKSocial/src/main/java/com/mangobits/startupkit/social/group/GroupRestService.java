@@ -294,16 +294,17 @@ public class GroupRestService extends UserBaseRestService {
         return resultStr;
     }
 
-    @GET
-    @Path("/listByUser/{idUser}")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public String listByUser(@PathParam("idUser") String idUser) throws Exception {
+    @Path("/listByUser")
+    public String listByUser(GroupSearch groupSearch)  throws Exception{
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
 
         try {
-            List<Group> list = groupService.listByUser(idUser);
+            List<Group> list = groupService.listByUser(groupSearch);
             cont.setData(list);
 
         } catch (Exception e) {

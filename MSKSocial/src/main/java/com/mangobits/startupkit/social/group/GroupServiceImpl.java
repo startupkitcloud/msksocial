@@ -255,38 +255,51 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> search(GroupSearch groupSearch) throws Exception {
 
-        SearchBuilder searchBuilder = new SearchBuilder();
-        searchBuilder.appendParam("status", SimpleStatusEnum.ACTIVE);
-        if (groupSearch.getQueryString() != null && StringUtils.isNotEmpty(groupSearch.getQueryString().trim())) {
-            searchBuilder.appendParam("title|desc|", groupSearch.getQueryString());
-        }
-        searchBuilder.setFirst(TOTAL_PAGE * (groupSearch.getPage() -1));
-        searchBuilder.setMaxResults(TOTAL_PAGE);
-        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
-        searchBuilder.setSort(sort);
+            SearchBuilder searchBuilder = new SearchBuilder();
+            searchBuilder.appendParam("status", SimpleStatusEnum.ACTIVE);
+            if (groupSearch.getQueryString() != null && StringUtils.isNotEmpty(groupSearch.getQueryString().trim())) {
+                searchBuilder.appendParam("title|desc|", groupSearch.getQueryString());
+            }
+            searchBuilder.setFirst(TOTAL_PAGE * (groupSearch.getPage() - 1));
+            searchBuilder.setMaxResults(TOTAL_PAGE);
+            Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+            searchBuilder.setSort(sort);
 
-        //ordena
-        List<Group> list = this.groupDAO.search(searchBuilder.build());
+            //ordena
+            List<Group> list = this.groupDAO.search(searchBuilder.build());
 
-//        if (groupSearch.getIdUser() != null) {
-//            list = listByUser(groupSearch.getIdUser());
-//        }
+
         return list;
     }
 
+
+
     @Override
-    public List<Group> listByUser (String idUser) throws Exception {
+    public List<Group> listByUser (GroupSearch groupSearch) throws Exception {
 
-        UserSocial userSocial = userSocialService.retrieve(idUser);
+        if (groupSearch.getIdUser() == null){
+            throw new BusinessException("missing_idUser");
+        }
 
-        List<String> listIds = userSocial.getListGroups();
+        List<Group> list = new ArrayList<>();
 
-        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        UserSocial userSocial = userSocialService.retrieve(groupSearch.getIdUser());
 
-        List<Group> list = groupDAO.search(groupDAO.createBuilder()
-                .appendParamQuery("id", listIds, OperationEnum.IN)
-                .setSort(sort)
-                .build());
+        if (userSocial != null && userSocial.getListGroups() != null){
+            List<String> listIds = userSocial.getListGroups();
+            Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+
+            SearchBuilder sb = groupDAO.createBuilder()
+                            .appendParamQuery("id", listIds, OperationEnum.IN)
+                            .setSort(sort);
+
+            if(groupSearch.getQueryString() != null){
+               sb.appendParamQuery("title", groupSearch.getQueryString(), OperationEnum.LIKE);
+            }
+
+            list = groupDAO.search(sb.build());
+        }
+
 
         return list;
 
