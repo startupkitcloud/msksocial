@@ -285,7 +285,7 @@ public class GroupServiceImpl implements GroupService {
 
         UserSocial userSocial = userSocialService.retrieve(groupSearch.getIdUser());
 
-        if (userSocial != null && userSocial.getListGroups() != null){
+        if (userSocial != null && userSocial.getListGroups() != null && userSocial.getListGroups().size() > 0){
             List<String> listIds = userSocial.getListGroups();
             Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
 
