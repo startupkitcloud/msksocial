@@ -33,7 +33,7 @@ public class Post {
     private Date creationDate;
 
 
-    @Field
+    @Field(indexNullAs = "_null_")
     private String idGroup;
 
     @Field
