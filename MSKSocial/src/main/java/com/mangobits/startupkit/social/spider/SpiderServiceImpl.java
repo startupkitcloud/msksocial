@@ -181,7 +181,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
             infoUrl = new InfoUrl();
 
-            if(url.indexOf("http") == -1){
+            if(!url.contains("http")){
                 url = spider.getUrlBase() + url;
             }
 
