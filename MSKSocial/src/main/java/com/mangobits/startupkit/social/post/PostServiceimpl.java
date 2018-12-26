@@ -364,8 +364,41 @@ public class PostServiceimpl implements PostService {
     }
 
 
+//    @Override
+//    public List<Post> listPending(PostSearch postSearch) throws Exception {
+//
+//        if (postSearch.getPage() == null){
+//            throw new BusinessException("missing_page");
+//        }
+//
+//        SearchBuilder sb = postDAO.createBuilder();
+//
+//        BooleanQuery.Builder qb = new BooleanQuery.Builder()
+//                .add(sb.getQueryBuilder().phrase().onField("status").sentence("PENDING").createQuery(),
+//                        BooleanClause.Occur.MUST);
+//
+//        sb.setQuery(qb.build());
+//
+//        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+//        sb.setMaxResults(TOTAL_POSTS_PAGE);
+//
+//        // ordenar por mais recentes a pedido do Denilson do AgroAZ
+//        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+//        sb.setSort(sort);
+//
+//        //ordena
+//        List<Post> list = postDAO.search(sb.build());
+//
+//        return list;
+//
+//    }
+
     @Override
-    public List<Post> listPending(PostSearch postSearch) throws Exception {
+    public PostResultSearch listPending(PostSearch postSearch) throws Exception {
+
+        int pageQuantity;
+        int totalAmount;
+        List<Post> list;
 
         if (postSearch.getPage() == null){
             throw new BusinessException("missing_page");
@@ -379,17 +412,57 @@ public class PostServiceimpl implements PostService {
 
         sb.setQuery(qb.build());
 
-        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
-        sb.setMaxResults(TOTAL_POSTS_PAGE);
+        // verifica se o site passa a quantidade de itens por página
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
+            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() -1));
+            sb.setMaxResults(postSearch.getPageItensNumber());
+        }else {
+            sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
+            sb.setMaxResults(TOTAL_POSTS_PAGE);
+        }
 
         // ordenar por mais recentes a pedido do Denilson do AgroAZ
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
         sb.setSort(sort);
 
         //ordena
-        List<Post> list = postDAO.search(sb.build());
+        list = postDAO.search(sb.build());
+        totalAmount = totalAmount(sb);
 
-        return list;
+        // verifica se o site passa a quantidade de itens por página
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
+           pageQuantity = pageQuantity(postSearch.getPageItensNumber(), totalAmount);
+        }else {
+            pageQuantity = pageQuantity(TOTAL_POSTS_PAGE, totalAmount);
+        }
+
+        PostResultSearch result = new PostResultSearch();
+        result.setListPosts(list);
+        result.setTotalAmount(totalAmount);
+        result.setPageQuantity(pageQuantity);
+
+        return result;
+    }
+
+    private int totalAmount(SearchBuilder sb) throws Exception {
+
+       int count = this.postDAO.count(sb.build());
+
+       return count;
+
+    }
+
+    private int pageQuantity(int numberOfItensByPage, int totalAmount) throws Exception {
+
+        int pageQuantity;
+
+        if(totalAmount%numberOfItensByPage != 0) {
+            pageQuantity = (totalAmount/numberOfItensByPage)+1;
+        } else {
+            pageQuantity = totalAmount/numberOfItensByPage;
+        }
+
+        return pageQuantity;
 
     }
 

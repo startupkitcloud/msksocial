@@ -110,8 +110,8 @@ public class PostRestService  extends UserBaseRestService {
 
         try {
 
-            List<Post> list = postService.listPending(postSearch);
-            cont.setData(list);
+            PostResultSearch result = postService.listPending(postSearch);
+            cont.setData(result);
 
         } catch (Exception e) {
             handleException(cont, e, "listing pending posts");

@@ -23,7 +23,7 @@ public interface PostService {
 
     List<Post> listAll() throws Exception;
 
-    List<Post> listPending(PostSearch postSearch) throws Exception;
+    PostResultSearch listPending(PostSearch postSearch) throws Exception;
 
     List<Post> search(PostSearch postSearch) throws Exception;
 

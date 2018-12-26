@@ -13,6 +13,9 @@ public class PostSearch {
     private Integer page;
 
 
+    // numero de itens pos pagina
+    private Integer pageItensNumber;
+
     private String idGroup;
 
 
@@ -74,5 +77,13 @@ public class PostSearch {
 
     public void setIdUserCreator(String idUserCreator) {
         this.idUserCreator = idUserCreator;
+    }
+
+    public Integer getPageItensNumber() {
+        return pageItensNumber;
+    }
+
+    public void setPageItensNumber(Integer pageItensNumber) {
+        this.pageItensNumber = pageItensNumber;
     }
 }
