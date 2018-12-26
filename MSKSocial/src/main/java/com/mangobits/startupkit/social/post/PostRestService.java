@@ -99,29 +99,31 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
-
-    @GET
-    @Path("/listPending")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public String listPending() throws Exception {
+    @Path("/listPending")
+    public String listPending(PostSearch postSearch)  throws Exception{
 
-        String resultStr = null;
+        String resultStr;
         JsonContainer cont = new JsonContainer();
 
         try {
 
-            List<Post> list = postService.listPending();
+            List<Post> list = postService.listPending(postSearch);
             cont.setData(list);
 
         } catch (Exception e) {
-            handleException(cont, e, "listing pending");
+            handleException(cont, e, "listing pending posts");
         }
+
 
         ObjectMapper mapper = new ObjectMapper();
         resultStr = mapper.writeValueAsString(cont);
 
         return resultStr;
     }
+
 
 
     @POST

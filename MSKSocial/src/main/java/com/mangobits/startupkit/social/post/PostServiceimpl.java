@@ -365,20 +365,40 @@ public class PostServiceimpl implements PostService {
 
 
     @Override
-    public List<Post> listPending() throws Exception {
+    public List<Post> listPending(PostSearch postSearch) throws Exception {
 
-       SearchBuilder searchBuilder = new SearchBuilder();
-       searchBuilder.appendParam("status", PostStatusEnum.PENDING);
-       Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, false));
-       searchBuilder.setSort(sort);
+        if (postSearch.getPage() == null){
+            throw new BusinessException("missing_page");
+        }
 
-        List<Post> list = this.postDAO.search(searchBuilder.build());
+        SearchBuilder sb = postDAO.createBuilder();
+
+        BooleanQuery.Builder qb = new BooleanQuery.Builder()
+                .add(sb.getQueryBuilder().phrase().onField("status").sentence("PENDING").createQuery(),
+                        BooleanClause.Occur.MUST);
+
+        sb.setQuery(qb.build());
+
+        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        sb.setMaxResults(TOTAL_POSTS_PAGE);
+
+        // ordenar por mais recentes a pedido do Denilson do AgroAZ
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        sb.setSort(sort);
+
+        //ordena
+        List<Post> list = postDAO.search(sb.build());
 
         return list;
+
     }
 
     @Override
     public List<Post> search(PostSearch postSearch) throws Exception {
+
+        if (postSearch.getPage() == null){
+            throw new BusinessException("missing_page");
+        }
 
         List<Post> posts = null;
 
