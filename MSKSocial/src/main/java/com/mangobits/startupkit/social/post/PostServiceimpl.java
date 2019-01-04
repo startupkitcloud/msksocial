@@ -489,7 +489,7 @@ public class PostServiceimpl implements PostService {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("userCreator.id").sentence(postSearch.getIdUserCreator())
                     .createQuery(), BooleanClause.Occur.MUST);
         }
-        else{
+        else if (postSearch.getIdUser() != null){
 
             BooleanQuery.Builder qb1 = new BooleanQuery.Builder();
             UserSocial userSocial = userSocialService.retrieve(postSearch.getIdUser());
