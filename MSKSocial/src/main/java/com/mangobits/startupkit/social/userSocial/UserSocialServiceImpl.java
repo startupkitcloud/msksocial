@@ -34,7 +34,11 @@ public class UserSocialServiceImpl implements UserSocialService {
     @Override
     public UserSocial retrieve(String idUser) throws Exception {
 
-        UserSocial userSocial =  userSocialDAO.retrieve(new UserSocial(idUser));
+        UserSocial userSocial = null;
+
+        if(idUser != null){
+            userSocial =  userSocialDAO.retrieve(new UserSocial(idUser));
+        }
 
         return userSocial;
     }
