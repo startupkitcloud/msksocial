@@ -5,12 +5,11 @@ import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.status.SimpleStatusEnum;
 import com.mangobits.startupkit.core.utils.BusinessUtils;
-import com.mangobits.startupkit.social.post.Post;
-import com.mangobits.startupkit.social.post.PostService;
-import com.mangobits.startupkit.social.post.PostStatusEnum;
-import com.mangobits.startupkit.social.post.PostTypeEnum;
+import com.mangobits.startupkit.social.post.*;
 import com.mangobits.startupkit.user.UserService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -44,6 +43,10 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
     @New
     @Inject
     private SpiderDAO spiderDAO;
+
+    @New
+    @Inject
+    private PostDAO postDAO;
 
 
     @Override
@@ -148,17 +151,29 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
 
                         if(postAdded == null){
 
-                            //check se ja nao foi processado
-                            InfoUrl infoUrl = analyseUrl(spider, url);
+                            // verifica se na tabela de posts já não existe um post com a url
+                            SearchBuilder sb = postDAO.createBuilder();
+                            BooleanQuery.Builder qb = new BooleanQuery.Builder()
+                                    .add(sb.getQueryBuilder().phrase().onField("infoUrl.url").sentence(url).createQuery(),
+                                            BooleanClause.Occur.MUST);
+                            sb.setQuery(qb.build());
+                            List<Post> listPosts = postDAO.search(sb.build());
 
-                            if(infoUrl != null){
-                                //cria o post
-                                Post post = createPost(infoUrl, spider);
+                            if (listPosts == null || listPosts.size() == 0){
 
-                                if(post != null){
-                                    listAdded.add(post);
+                                //check se ja nao foi processado
+                                InfoUrl infoUrl = analyseUrl(spider, url);
+
+                                if(infoUrl != null){
+                                    //cria o post
+                                    Post post = createPost(infoUrl, spider);
+
+                                    if(post != null){
+                                        listAdded.add(post);
+                                    }
                                 }
                             }
+
                         }
                     }
                 }
