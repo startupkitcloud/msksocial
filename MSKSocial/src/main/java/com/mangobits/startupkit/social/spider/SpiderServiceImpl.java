@@ -131,7 +131,7 @@ public class SpiderServiceImpl implements com.mangobits.startupkit.social.spider
             if(els != null){
 
                 String patternStr = spider.getUrlPatterns().stream()
-                        .collect(Collectors.joining(")(?=.*", "(?=.*", ")"));
+                        .collect(Collectors.joining(")|(?=.*", "(?=.*", ")"));
 
                 List<String> itens = els.stream()
                         .filter(element -> {

@@ -14,6 +14,7 @@ import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;
 import com.mangobits.startupkit.social.postInfo.PostInfoService;
 import com.mangobits.startupkit.social.spider.InfoUrl;
+import com.mangobits.startupkit.social.spider.SpiderService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
@@ -49,6 +50,9 @@ public class PostRestService  extends UserBaseRestService {
 
     @EJB
     private EmailService emailService;
+
+    @EJB
+    private SpiderService spiderService;
 
     @SecuredUser
     @POST
@@ -702,4 +706,26 @@ public class PostRestService  extends UserBaseRestService {
         }
     }
 
+
+    @GET
+    @Path("/goSpider")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String goSpider() throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            spiderService.goSpider();
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "running Spider");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
 }
