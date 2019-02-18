@@ -1,5 +1,9 @@
 Manifest-Version: 1.0
+<<<<<<< HEAD
 Built-By: diego
+=======
+Built-By: angela
+>>>>>>> f0f448bdd592c05408ddd65a0052a231130eca33
 Class-Path: javaee-api-7.0.jar javax.mail-1.5.0.jar activation-1.1.jar
   jackson-databind-2.6.1.jar jackson-annotations-2.6.0.jar jackson-cor
  e-2.6.1.jar hibernate-ogm-core-5.0.0.Final.jar hibernate-core-5.0.9.F
@@ -40,7 +44,11 @@ Class-Path: javaee-api-7.0.jar javax.mail-1.5.0.jar activation-1.1.jar
  et-1.2.12.jar jsr173_api-1.0.jar mail-1.5.0-b01.jar apache-mime4j-0.6
  .jar jboss-logging-3.1.4.GA.jar jsoup-1.8.3.jar
 Created-By: IntelliJ IDEA
+<<<<<<< HEAD
 Build-Jdk: 1.8
+=======
+Build-Jdk: 1.8.0_91
+>>>>>>> f0f448bdd592c05408ddd65a0052a231130eca33
 Dependencies: org.hibernate.ogm:5.0 services, org.hibernate.ogm.mongod
  b:5.0 services
 
