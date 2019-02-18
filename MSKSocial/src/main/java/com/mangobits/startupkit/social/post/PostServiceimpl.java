@@ -2,6 +2,7 @@ package com.mangobits.startupkit.social.post;
 
 
 import com.mangobits.startupkit.core.address.AddressUtils;
+import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
@@ -38,6 +39,10 @@ import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.preference.Preference;
 import com.mangobits.startupkit.user.preference.PreferenceService;
 
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.FFprobe;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -664,6 +669,40 @@ public class PostServiceimpl implements PostService {
         new PhotoUtils().saveImage(photoUpload, path, gi.getId());
     }
 
+
+    private void saveVideoAndroid(Post post) throws Exception{
+
+        Configuration ffmepgPath = configurationService.loadByCode("PATH_FFMPEG");
+
+        if(ffmepgPath == null){
+            throw new BusinessException("You need define PATH_FFMPEG configuration");
+        }
+
+        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
+
+        FFprobe ffprobe = new FFprobe(ffmepgPath.getValue() + "/ffprobe");
+        FFmpeg ffmpeg = new FFmpeg(ffmepgPath.getValue() + "/ffmpeg");
+        FFmpegBuilder builder = new FFmpegBuilder()
+                .setInput(path + "/video_original.mp4")
+                .overrideOutputFiles(true)
+                .addOutput(path + "video_android.mp4")
+                .setFormat("mp4")
+                .setVideoBitRate(10*1024*1024)
+                .setAudioChannels(1)
+                .setAudioCodec("aac")
+                .setAudioSampleRate(48_000)
+                .setAudioBitRate(32768)
+                .setVideoCodec("libx264")
+                .setVideoMovFlags("+faststart")
+                .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
+                .done();
+
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+        executor.createJob(builder).run();
+        executor.createTwoPassJob(builder).run();
+    }
+
+
     @Override
     public void saveVideo(PhotoUpload photoUpload) throws Exception{
 
@@ -698,6 +737,8 @@ public class PostServiceimpl implements PostService {
         String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
 
         new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
+
+        saveVideoAndroid(post);
     }
 
     @Override

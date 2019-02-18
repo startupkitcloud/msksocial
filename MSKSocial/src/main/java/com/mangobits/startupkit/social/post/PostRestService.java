@@ -27,6 +27,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -597,6 +598,34 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+
+
+    @GET
+    @Path("/goSpider")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String goSpider() throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+            spiderService.goSpider();
+            cont.setData("OK");
+
+        } catch (Exception e) {
+            handleException(cont, e, "running Spider");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+
+
+    //#########################
+
     @GET
     @Path("/video/{idPost}/{videoType}")
     @Produces("video/mp4")
@@ -605,6 +634,13 @@ public class PostRestService  extends UserBaseRestService {
         String path = configuration.getValue() + "/post/" + idPost + "/" + videoType + "_original.mp4";
         return buildStream(new File(path), range);
     }
+
+//    @GET
+//    @Path("/video/{name}")
+//    @Produces("video/mp4")
+//    public Response video(@HeaderParam("Range") String range, final @PathParam("name") String name) throws Exception {
+//        return buildStream(new File(homeService.videoPath() + name), range);
+//    }
 
 
     private Response buildStream(final File asset, final String range) throws Exception {
@@ -661,7 +697,7 @@ public class PostRestService  extends UserBaseRestService {
 
             final int len = to - from + 1;
             final MediaStreamer streamer = new MediaStreamer(len, raf);
-            res = Response.status(Response.Status.PARTIAL_CONTENT).entity(streamer)
+            res = Response.status(Status.PARTIAL_CONTENT).entity(streamer)
                     .header("Accept-Ranges", "bytes")
                     .header("Content-Range", responseRange)
                     .header(HttpHeaders.CONTENT_LENGTH, streamer.getLenth())
@@ -704,28 +740,5 @@ public class PostRestService  extends UserBaseRestService {
         public int getLenth() {
             return length;
         }
-    }
-
-
-    @GET
-    @Path("/goSpider")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public String goSpider() throws Exception {
-
-        String resultStr;
-        JsonContainer cont = new JsonContainer();
-
-        try {
-            spiderService.goSpider();
-            cont.setData("OK");
-
-        } catch (Exception e) {
-            handleException(cont, e, "running Spider");
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        resultStr = mapper.writeValueAsString(cont);
-
-        return resultStr;
     }
 }
