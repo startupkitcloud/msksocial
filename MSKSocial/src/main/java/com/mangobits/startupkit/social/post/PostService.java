@@ -47,10 +47,12 @@ public interface PostService {
 
     InfoUrl verifyUrl(String url) throws Exception;
 
-    String videoPath() throws Exception;
+    String videoPath(String idPost) throws Exception;
 
     void saveVideo(PhotoUpload photoUpload) throws Exception;
 
     void saveVideoByParts(PhotoUpload photoUpload) throws Exception;
+
+    void blockExpiredPendingPosts() throws Exception;
 
 }

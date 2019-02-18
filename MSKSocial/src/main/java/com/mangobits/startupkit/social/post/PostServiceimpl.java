@@ -6,6 +6,7 @@ import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.dao.SearchProjection;
+import com.mangobits.startupkit.core.exception.ApplicationException;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
@@ -50,6 +51,7 @@ import org.jsoup.nodes.Element;
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
+import javax.naming.InitialContext;
 import java.io.*;
 import java.util.*;
 
@@ -702,10 +704,12 @@ public class PostServiceimpl implements PostService {
 
     @Override
     public void saveVideoByParts(PhotoUpload photoUpload) throws Exception {
-        String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
 
-      if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")){
-          // adiciona o texto
+        if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")){
+
+            String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
+
+            // adiciona o texto
             BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(photoUpload.getPhoto());
             writer.close();
@@ -722,14 +726,32 @@ public class PostServiceimpl implements PostService {
                 inputStream.close();
             }
 
-        }else {
+        }else  if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("first")){
 
-          // cria o arquivo e/ou adiciona o texto
+            String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject();
+
+            // cria a pasta e adicionao texto
+          File folder = new File(filePath);
+          folder.mkdirs();
+            File destiny = new File(filePath, "/main.txt");
+            BufferedWriter  writer = new BufferedWriter(new FileWriter(destiny, true));
+          writer.append(photoUpload.getPhoto());
+          writer.close();
+
+      }
+
+        else {
+            String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
+
+            //  adiciona o texto
+
             BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(photoUpload.getPhoto());
             writer.close();
+
         }
 
+//
     }
 
 
@@ -927,14 +949,71 @@ public class PostServiceimpl implements PostService {
         return infoUrl;
     }
 
+//    @Override
+//    public String videoPath() throws Exception {
+//
+//        String path = null;
+//
+//        path = configurationService.loadByCode("PATH_BASE").getValue() + "/videos/";
+//
+//        return path;
+//    }
+
     @Override
-    public String videoPath() throws Exception {
+    public String videoPath(String idPost) throws BusinessException, com.mangobits.startupkit.core.exception.ApplicationException {
 
         String path = null;
 
-        path = configurationService.loadByCode("PATH_BASE").getValue() + "/videos/";
+        try {
+
+
+            path = configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_original.mp4";
+
+        } catch (Exception e) {
+            throw new ApplicationException("Got an error loading the video path", e);
+        }
 
         return path;
     }
+
+    @Override
+    public void blockExpiredPendingPosts() throws Exception {
+
+        Calendar expireDate = Calendar.getInstance();
+        expireDate.add(Calendar.DAY_OF_MONTH, -5);
+
+        Date dateInitial = dateCalendar(expireDate, true);
+        Date dateLast = dateCalendar(expireDate, false);
+
+        Map<String, Object> params = new HashMap<>();
+       // params.put("gte:creationDate", dateInitial);
+        params.put("lte:creationDate", dateLast);
+        params.put("status", PostStatusEnum.PENDING);
+
+        List<Post> list = postDAO.search(params);
+
+        for (Post item : list) {
+                item.setStatus(PostStatusEnum.BLOCKED);
+                postDAO.update(item);
+        }
+
+    }
+
+    private Date dateCalendar (Calendar expireDate, boolean initial){
+
+        if(initial){
+            expireDate.set(Calendar.HOUR_OF_DAY, 0);
+            expireDate.set(Calendar.MINUTE, 0);
+        }else{
+            expireDate.set(Calendar.HOUR_OF_DAY, 23);
+            expireDate.set(Calendar.MINUTE, 59);
+        }
+
+        return expireDate.getTime();
+    }
+
+
+
+
 
 }
