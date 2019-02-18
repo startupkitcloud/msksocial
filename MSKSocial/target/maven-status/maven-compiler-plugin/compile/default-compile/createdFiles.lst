@@ -8,6 +8,7 @@ com/mangobits/startupkit/social/post/PostRestService$1.class
 com/mangobits/startupkit/social/group/GroupService.class
 com/mangobits/startupkit/social/spider/SpiderDAO.class
 com/mangobits/startupkit/social/spider/InfoUrl.class
+com/mangobits/startupkit/social/post/PendingPostBot.class
 com/mangobits/startupkit/social/post/PostResultSearch.class
 com/mangobits/startupkit/social/post/PostRestService$MediaStreamer.class
 com/mangobits/startupkit/social/userSocial/UserSocialServiceImpl.class

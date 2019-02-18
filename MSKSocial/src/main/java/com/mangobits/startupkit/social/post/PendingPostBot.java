@@ -1,7 +1,5 @@
 package com.mangobits.startupkit.social.post;
 
-import com.mangobits.startupkit.social.spider.SpiderService;
-
 import javax.ejb.*;
 import java.util.concurrent.TimeUnit;
 

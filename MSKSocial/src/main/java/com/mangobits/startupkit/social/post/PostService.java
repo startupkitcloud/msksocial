@@ -1,7 +1,5 @@
 package com.mangobits.startupkit.social.post;
 
-import com.mangobits.startupkit.core.exception.ApplicationException;
-import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.like.Like;

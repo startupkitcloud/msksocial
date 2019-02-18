@@ -913,8 +913,6 @@ public class PostServiceimpl implements PostService {
             Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
             searchBuilder.setSort(sort);
 
-
-
             if (postSearch.getLat() != null && postSearch.getLog() != null) {
                 searchBuilder.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
             }
@@ -1017,9 +1015,7 @@ public class PostServiceimpl implements PostService {
         return path;
     }
 
-<<<<<<< HEAD
-}
-=======
+
     @Override
     public void blockExpiredPendingPosts() throws Exception {
 
@@ -1055,10 +1051,4 @@ public class PostServiceimpl implements PostService {
 
         return expireDate.getTime();
     }
-
-
-
-
-
 }
->>>>>>> f0f448bdd592c05408ddd65a0052a231130eca33
