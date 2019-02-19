@@ -159,6 +159,10 @@ public class PostServiceimpl implements PostService {
         }
 
         postBase.setStatus(post.getStatus());
+        if(!post.getListTags().isEmpty()){
+            postBase.setListTags(post.getListTags());
+        }
+
         postDAO.update(postBase);
 
 //        if(postBase.getType().equals(PostTypeEnum.NEWS) && postBase.getStatus().equals(PostStatusEnum.ACTIVE)){
@@ -687,7 +691,7 @@ public class PostServiceimpl implements PostService {
         FFmpegBuilder builder = new FFmpegBuilder()
                 .setInput(path + "/video_original.mp4")
                 .overrideOutputFiles(true)
-                .addOutput(path + "video_android.mp4")
+                .addOutput(path + "/video_android.mp4")
                 .setFormat("mp4")
                 .setVideoBitRate(10*1024*1024)
                 .setAudioChannels(1)
@@ -738,6 +742,7 @@ public class PostServiceimpl implements PostService {
 
         String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
 
+        System.out.println(photoUpload.getPhoto());
         new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
 
         saveVideoAndroid(post);
@@ -760,6 +765,7 @@ public class PostServiceimpl implements PostService {
             try {
                 String everything = IOUtils.toString(inputStream);
                 if (everything != null){
+                    everything = everything.replaceAll("\\n", "");
                     photoUpload.setPhoto(everything);
                     saveVideo(photoUpload);
                 }
@@ -772,15 +778,13 @@ public class PostServiceimpl implements PostService {
             String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject();
 
             // cria a pasta e adicionao texto
-          File folder = new File(filePath);
-          folder.mkdirs();
+            File folder = new File(filePath);
+            folder.mkdirs();
             File destiny = new File(filePath, "/main.txt");
             BufferedWriter  writer = new BufferedWriter(new FileWriter(destiny, true));
-          writer.append(photoUpload.getPhoto());
-          writer.close();
-
-      }
-
+            writer.append(photoUpload.getPhoto());
+            writer.close();
+        }
         else {
             String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
 
