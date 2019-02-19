@@ -1,6 +1,7 @@
 package com.mangobits.startupkit.social.post;
 
 
+import com.google.common.primitives.Bytes;
 import com.mangobits.startupkit.core.address.AddressUtils;
 import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
@@ -44,6 +45,7 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +55,7 @@ import org.hibernate.search.query.dsl.BooleanJunction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
@@ -672,7 +675,7 @@ public class PostServiceimpl implements PostService {
         FFmpegBuilder builder = new FFmpegBuilder()
                 .setInput(path + "/video_original.mp4")
                 .overrideOutputFiles(true)
-                .addOutput(path + "/video_android.mp4")
+                .addOutput(path + "/video_post.mp4")
                 .setFormat("mp4")
                 .setVideoBitRate(10*1024*1024)
                 .setAudioChannels(1)
@@ -723,7 +726,6 @@ public class PostServiceimpl implements PostService {
 
         String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
 
-        System.out.println(photoUpload.getPhoto());
         new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
 
         saveVideoAndroid(post);
@@ -745,9 +747,19 @@ public class PostServiceimpl implements PostService {
             FileInputStream inputStream = new FileInputStream(filePath);
             try {
                 String everything = IOUtils.toString(inputStream);
+
                 if (everything != null){
-                    everything = everything.replaceAll("\\n", "");
-                    photoUpload.setPhoto(everything);
+
+                    String[] parts = everything.split("\\|\\|\\|\\|");
+                    List<Byte> jezz = new ArrayList<>();
+
+                    for(String part: parts){
+                        byte[] data = Base64.decodeBase64(part);
+                        jezz.addAll(Bytes.asList(data));
+                    }
+
+                    byte[] combined = Bytes.toArray(jezz);
+                    photoUpload.setPhotoBytes(combined);
                     saveVideo(photoUpload);
                 }
             } finally {
@@ -764,6 +776,7 @@ public class PostServiceimpl implements PostService {
             File destiny = new File(filePath, "/main.txt");
             BufferedWriter  writer = new BufferedWriter(new FileWriter(destiny, true));
             writer.append(photoUpload.getPhoto());
+            writer.append("||||");
             writer.close();
         }
         else {
@@ -773,11 +786,9 @@ public class PostServiceimpl implements PostService {
 
             BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(photoUpload.getPhoto());
+            writer.append("||||");
             writer.close();
-
         }
-
-//
     }
 
 
@@ -986,13 +997,10 @@ public class PostServiceimpl implements PostService {
     @Override
     public String videoPath(String idPost) throws BusinessException, com.mangobits.startupkit.core.exception.ApplicationException {
 
-        String path = null;
+        String path;
 
         try {
-
-
-            path = configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_original.mp4";
-
+            path = configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_post.mp4";
         } catch (Exception e) {
             throw new ApplicationException("Got an error loading the video path", e);
         }
