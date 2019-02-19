@@ -43,6 +43,11 @@ public class Post {
     private String title;
 
 
+    // aonde o post vai estar, por exemplo, na home ou em outra tela
+    @Field
+    private String section;
+
+
     @IndexedEmbedded
     private UserCard userCreator;
 
@@ -306,6 +311,14 @@ public class Post {
 
     public void setFgSurveyAnswered(Boolean fgSurveyAnswered) {
         this.fgSurveyAnswered = fgSurveyAnswered;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 
 }

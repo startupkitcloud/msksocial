@@ -375,35 +375,6 @@ public class PostServiceimpl implements PostService {
     }
 
 
-//    @Override
-//    public List<Post> listPending(PostSearch postSearch) throws Exception {
-//
-//        if (postSearch.getPage() == null){
-//            throw new BusinessException("missing_page");
-//        }
-//
-//        SearchBuilder sb = postDAO.createBuilder();
-//
-//        BooleanQuery.Builder qb = new BooleanQuery.Builder()
-//                .add(sb.getQueryBuilder().phrase().onField("status").sentence("PENDING").createQuery(),
-//                        BooleanClause.Occur.MUST);
-//
-//        sb.setQuery(qb.build());
-//
-//        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
-//        sb.setMaxResults(TOTAL_POSTS_PAGE);
-//
-//        // ordenar por mais recentes a pedido do Denilson do AgroAZ
-//        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
-//        sb.setSort(sort);
-//
-//        //ordena
-//        List<Post> list = postDAO.search(sb.build());
-//
-//        return list;
-//
-//    }
-
     @Override
     public PostResultSearch listPending(PostSearch postSearch) throws Exception {
 
@@ -491,6 +462,16 @@ public class PostServiceimpl implements PostService {
         BooleanQuery.Builder qb = new BooleanQuery.Builder()
                 .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
                         BooleanClause.Occur.MUST);
+
+        if (postSearch.getType() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+
+        if (postSearch.getSection() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("section").sentence(postSearch.getSection())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
 
         if (postSearch.getIdGroup() != null) {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("idGroup").sentence(postSearch.getIdGroup())

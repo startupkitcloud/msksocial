@@ -18,6 +18,10 @@ public class PostSearch {
 
     private String idGroup;
 
+    private String type;
+
+    private String section;
+
 
     private String idUserCreator;
 
@@ -86,4 +90,22 @@ public class PostSearch {
     public void setPageItensNumber(Integer pageItensNumber) {
         this.pageItensNumber = pageItensNumber;
     }
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
 }
