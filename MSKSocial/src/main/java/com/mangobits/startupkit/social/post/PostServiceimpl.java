@@ -467,7 +467,7 @@ public class PostServiceimpl implements PostService {
                 .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
                         BooleanClause.Occur.MUST);
 
-        if (!postSearch.getQueryString().isEmpty()){
+        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()){
             qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(),BooleanClause.Occur.MUST);
         }
 
