@@ -6,6 +6,7 @@ import com.mangobits.startupkit.core.address.AddressUtils;
 import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
+import com.mangobits.startupkit.core.dao.OperationEnum;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.dao.SearchProjection;
 import com.mangobits.startupkit.core.exception.ApplicationException;
@@ -466,6 +467,10 @@ public class PostServiceimpl implements PostService {
                 .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
                         BooleanClause.Occur.MUST);
 
+        if (!postSearch.getQueryString().isEmpty()){
+            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(),BooleanClause.Occur.MUST);
+        }
+
         if (postSearch.getType() != null) {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType())
                     .createQuery(), BooleanClause.Occur.MUST);
@@ -533,6 +538,10 @@ public class PostServiceimpl implements PostService {
         }
 
         sb.setQuery(qb.build());
+
+//        if (!postSearch.getQueryString().isEmpty()){
+//            sb.appendParamQuery("desc|title|listTags", postSearch.getQueryString(), OperationEnum.OR_FIELDS);
+//        }
 
         sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
         sb.setMaxResults(TOTAL_POSTS_PAGE);
