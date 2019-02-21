@@ -625,6 +625,123 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
+    public List<Post> simpleSearch(PostSearch postSearch) throws Exception {
+
+        if (postSearch.getPage() == null){
+            throw new BusinessException("missing_page");
+        }
+
+        List<Post> posts = null;
+
+        SearchBuilder sb = postDAO.createBuilder();
+
+        BooleanQuery.Builder qb = new BooleanQuery.Builder()
+                .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
+                        BooleanClause.Occur.MUST);
+
+        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()){
+            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(),BooleanClause.Occur.MUST);
+        }
+
+        if (postSearch.getType() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+
+        if (postSearch.getSection() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("section").sentence(postSearch.getSection())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+
+        if (postSearch.getIdUserCreator() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("userCreator.id").sentence(postSearch.getIdUserCreator())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
+
+        sb.setQuery(qb.build());
+
+        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        sb.setMaxResults(TOTAL_POSTS_PAGE);
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        sb.setSort(sort);
+        if (postSearch.getLat() != null && postSearch.getLog() != null){
+            sb.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
+        }
+
+        //ordena
+        List<Post> list = postDAO.search(sb.build());
+
+        //atualiza todos com com view + 1
+        if(list != null){
+            for(Post post : list){
+
+                if(post.getTotalViews() == null){
+                    post.setTotalViews(0);
+                }
+
+                post.setTotalViews(post.getTotalViews()+1);
+                postDAO.update(post);
+
+
+                //chamar o dao que faz o aggregate e retorna uma lista
+                List<Comment> comments = postInfoDAO.listActiveComments(post.getId(), 3);
+                post.setLastComments(comments);
+
+                if (postSearch.getIdUser() != null) {
+
+                    // verifica se o post foi curtido
+                    List<String> listIdPostLiked = listIdPostLiked(postSearch.getIdUser());
+
+                    String postLiked = listIdPostLiked.stream()
+                            .filter(p -> p.equals(post.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (postLiked != null) {
+                        post.setFgLiked(true);
+                    }else {
+                        post.setFgLiked(false);
+                    }
+
+                    // verifica se o post foi favoritado
+                    List<String> listPostFavorite = listPostFavorite(postSearch.getIdUser());
+                    String postFavorited = listPostFavorite.stream()
+                            .filter(p -> p.equals(post.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (postFavorited != null) {
+                        post.setFgFavorite(true);
+                    }else {
+                        post.setFgFavorite(false);
+                    }
+
+                    if (post.getType() == PostTypeEnum.SURVEY){
+
+                        // verifica se o post do tipo SURVEY já foi respondido pelo usuário
+                        List<String> listUsersAnswered = post.getSurvey().getListUsers();
+
+                        String idUser = listUsersAnswered.stream()
+                                .filter(p -> p.equals(postSearch.getIdUser()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (idUser != null) {
+                            post.setFgSurveyAnswered(true);
+                        }else {
+                            post.setFgSurveyAnswered(false);
+                        }
+                    }
+
+
+                }
+            }
+        }
+
+        return list;
+    }
+
+    @Override
     public Post retrieve(String idPost) throws Exception {
 
         Post post =  postDAO.retrieve(new Post(idPost));

@@ -25,6 +25,9 @@ public interface PostService {
 
     List<Post> search(PostSearch postSearch) throws Exception;
 
+    List<Post> simpleSearch(PostSearch postSearch) throws Exception;
+
+
     Post retrieve(String idPost) throws Exception;
 
     void saveImage(PhotoUpload photoUpload) throws Exception;

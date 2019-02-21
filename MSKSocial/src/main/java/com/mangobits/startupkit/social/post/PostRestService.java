@@ -156,6 +156,31 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/simpleSearch")
+    public String simpleSearch(PostSearch postSearch)  throws Exception{
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            List<Post> list = postService.simpleSearch(postSearch);
+            cont.setData(list);
+
+        } catch (Exception e) {
+            handleException(cont, e, "searching posts");
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
 
     @GET
     @Path("/load/{id}")
