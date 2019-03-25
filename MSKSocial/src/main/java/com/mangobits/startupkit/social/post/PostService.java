@@ -56,4 +56,5 @@ public interface PostService {
 
     void blockExpiredPendingPosts() throws Exception;
 
+    PostResultSearch searchAdmin(PostSearch postSearch) throws Exception;
 }

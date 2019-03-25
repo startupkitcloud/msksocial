@@ -7,6 +7,7 @@ import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
+import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.utils.FileUtil;
 import com.mangobits.startupkit.notification.email.EmailService;
 import com.mangobits.startupkit.service.admin.util.SecuredAdmin;
@@ -19,6 +20,9 @@ import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
 import com.mangobits.startupkit.ws.JsonContainer;
+import org.apache.commons.io.IOUtils;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -29,11 +33,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.Response.Status;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Stateless
 @Path("/post")
@@ -61,6 +68,32 @@ public class PostRestService  extends UserBaseRestService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/save")
     public String save(Post post)  throws Exception{
+
+        String resultStr = null;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            postService.save(post, true);
+            cont.setData(post);
+
+        } catch (Exception e) {
+            handleException(cont, e, "saving a post");
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+    @SecuredAdmin
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/saveAdmin")
+    public String saveAdmin(Post post)  throws Exception{
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
@@ -129,6 +162,30 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Path("/searchAdmin")
+    public String searchAdmin(PostSearch postSearch)  throws Exception{
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            PostResultSearch result = postService.searchAdmin(postSearch);
+            cont.setData(result);
+
+        } catch (Exception e) {
+            handleException(cont, e, "searching admin");
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
 
 
     @POST
@@ -751,4 +808,71 @@ public class PostRestService  extends UserBaseRestService {
             return length;
         }
     }
+
+    @POST
+    @Path("/uploadVideo")
+    @Consumes("multipart/form-data")
+    public String uploadVideo(MultipartFormDataInput input) throws IOException {
+
+        try {
+            Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+            InputPart inputPartsId = uploadForm.get("idObj").get(0);
+            String photoId = inputPartsId.getBody(String.class, null);
+
+            InputPart inputPartsName = uploadForm.get("name").get(0);
+            String photoName = inputPartsName.getBody(String.class, null);
+
+            InputPart videoFile = uploadForm.get("video_file").get(0);
+
+            PhotoUpload photoUpload = new PhotoUpload();
+            InputStream inputStream = videoFile.getBody(InputStream.class, null);
+
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            photoUpload.setPhotoBytes(bytes);
+            photoUpload.setIdObject(photoId);
+            photoUpload.setIdSubObject("video");
+            photoUpload.setTitle(photoName);
+
+            postService.saveVideo(photoUpload);
+
+            InputPart imageFile = uploadForm.get("image_file").get(0);
+
+            photoUpload = new PhotoUpload();
+            inputStream = imageFile.getBody(InputStream.class, null);
+            bytes = IOUtils.toByteArray(inputStream);
+            photoUpload.setIdObject(photoId);
+            photoUpload.setPhotoBytes(bytes);
+            photoUpload.setIdSubObject("image");
+            photoUpload.setTitle(photoName);
+
+            Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
+            String path = configuration.getValue() + "/post/" + photoId;
+
+            // salva imagem do video
+            new PhotoUtils().saveImage(photoUpload, path, photoUpload.getIdSubObject());
+
+
+            StringBuilder textReturn = new StringBuilder();
+            textReturn.append("{");
+            textReturn.append("\n");
+            textReturn.append("\"idVideo\":" + "\"");
+            textReturn.append("video");
+            textReturn.append("\",");
+            textReturn.append("\n");
+            textReturn.append("\"name\":" + "\"");
+            textReturn.append(photoName);
+            textReturn.append("\"");
+            textReturn.append("\n");
+            textReturn.append("}");
+
+
+            return textReturn.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
 }

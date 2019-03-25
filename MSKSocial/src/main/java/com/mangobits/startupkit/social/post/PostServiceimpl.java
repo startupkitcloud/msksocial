@@ -206,10 +206,6 @@ public class PostServiceimpl implements PostService {
     @Override
     public void save(Post post, Boolean sendGroupMessage) throws Exception {
 
-        if(post.getStatus() == null){
-            post.setStatus(PostStatusEnum.ACTIVE);
-        }
-
         if (post.getAddress() != null && post.getAddress().getLatitude() == null){
             new AddressUtils().geocodeAddress(post.getAddress());
         }
@@ -217,8 +213,19 @@ public class PostServiceimpl implements PostService {
         if(post.getId() == null){
             post.setCreationDate(new Date());
 
-            if (post.getType() == PostTypeEnum.SURVEY){
+            Boolean createAsPending = Boolean.FALSE;
 
+            if (configurationService.loadByCode("CREATE_PENDING_POST") != null){
+                createAsPending = Boolean.parseBoolean(configurationService.loadByCode("CREATE_PENDING_POST").getValue());
+            }
+
+            if (createAsPending){
+                post.setStatus(PostStatusEnum.PENDING);
+            }else {
+                post.setStatus(PostStatusEnum.ACTIVE);
+            }
+
+            if (post.getType() == PostTypeEnum.SURVEY){
 
                 if (post.getSurvey() == null){
                     throw new BusinessException("missing_survey");
@@ -739,6 +746,73 @@ public class PostServiceimpl implements PostService {
         }
 
         return list;
+    }
+
+    @Override
+    public PostResultSearch searchAdmin(PostSearch postSearch) throws Exception {
+
+        int pageQuantity;
+        int totalAmount;
+        List<Post> list;
+
+        if (postSearch.getPage() == null){
+            throw new BusinessException("missing_page");
+        }
+
+        SearchBuilder sb = postDAO.createBuilder();
+        BooleanQuery.Builder qb = new BooleanQuery.Builder();
+
+        if (postSearch.getStatus() != null){
+            qb.add(sb.getQueryBuilder().phrase().onField("status").sentence(postSearch.getStatus()).createQuery(),
+                    BooleanClause.Occur.MUST);
+
+        }else {
+            qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
+                            BooleanClause.Occur.MUST);
+        }
+        if (postSearch.getType() != null){
+            qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType()).createQuery(),
+                    BooleanClause.Occur.MUST);
+
+        }
+        if (postSearch.getSection() != null){
+            qb.add(sb.getQueryBuilder().phrase().onField("section").sentence(postSearch.getSection()).createQuery(),
+                    BooleanClause.Occur.MUST);
+
+        }
+
+        sb.setQuery(qb.build());
+
+        // verifica se o site passa a quantidade de itens por página
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
+            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() -1));
+            sb.setMaxResults(postSearch.getPageItensNumber());
+        }else {
+            sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
+            sb.setMaxResults(TOTAL_POSTS_PAGE);
+        }
+
+        // ordenar por mais recentes a pedido do Denilson do AgroAZ
+        Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
+        sb.setSort(sort);
+
+        //ordena
+        list = postDAO.search(sb.build());
+        totalAmount = totalAmount(sb);
+
+        // verifica se o site passa a quantidade de itens por página
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
+            pageQuantity = pageQuantity(postSearch.getPageItensNumber(), totalAmount);
+        }else {
+            pageQuantity = pageQuantity(TOTAL_POSTS_PAGE, totalAmount);
+        }
+
+        PostResultSearch result = new PostResultSearch();
+        result.setListPosts(list);
+        result.setTotalAmount(totalAmount);
+        result.setPageQuantity(pageQuantity);
+
+        return result;
     }
 
     @Override

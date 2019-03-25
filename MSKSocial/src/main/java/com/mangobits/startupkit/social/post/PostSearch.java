@@ -20,6 +20,11 @@ public class PostSearch {
 
     private String type;
 
+
+
+    private String status;
+
+
     private String section;
 
 
@@ -108,4 +113,11 @@ public class PostSearch {
         this.section = section;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
