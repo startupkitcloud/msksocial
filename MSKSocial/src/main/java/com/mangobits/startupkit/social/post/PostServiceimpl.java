@@ -762,14 +762,20 @@ public class PostServiceimpl implements PostService {
         SearchBuilder sb = postDAO.createBuilder();
         BooleanQuery.Builder qb = new BooleanQuery.Builder();
 
+
         if (postSearch.getStatus() != null){
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence(postSearch.getStatus()).createQuery(),
                     BooleanClause.Occur.MUST);
 
         }else {
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
-                            BooleanClause.Occur.MUST);
+                            BooleanClause.Occur.SHOULD);
+            qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("BLOCKED").createQuery(),
+                    BooleanClause.Occur.SHOULD);
+            qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("PENDING").createQuery(),
+                    BooleanClause.Occur.SHOULD);
         }
+
         if (postSearch.getType() != null){
             qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType()).createQuery(),
                     BooleanClause.Occur.MUST);
