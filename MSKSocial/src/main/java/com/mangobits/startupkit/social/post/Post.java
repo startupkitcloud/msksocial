@@ -63,6 +63,15 @@ public class Post {
     private Boolean fgSurveyAnswered;
 
 
+
+    @Transient
+    private Boolean fgFormAnswered;
+
+    @Transient
+    private Boolean fgFormRegistered;
+
+
+
     private Boolean fgNotification;
 
 
@@ -319,6 +328,22 @@ public class Post {
 
     public void setSection(String section) {
         this.section = section;
+    }
+
+    public Boolean getFgFormAnswered() {
+        return fgFormAnswered;
+    }
+
+    public void setFgFormAnswered(Boolean fgFormAnswered) {
+        this.fgFormAnswered = fgFormAnswered;
+    }
+
+    public Boolean getFgFormRegistered() {
+        return fgFormRegistered;
+    }
+
+    public void setFgFormRegistered(Boolean fgFormRegistered) {
+        this.fgFormRegistered = fgFormRegistered;
     }
 
 }
