@@ -842,7 +842,7 @@ public class PostRestService  extends UserBaseRestService {
             bytes = IOUtils.toByteArray(inputStream);
             photoUpload.setIdObject(photoId);
             photoUpload.setPhotoBytes(bytes);
-            photoUpload.setIdSubObject("image");
+            photoUpload.setIdSubObject("video");
             photoUpload.setTitle(photoName);
 
             Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);

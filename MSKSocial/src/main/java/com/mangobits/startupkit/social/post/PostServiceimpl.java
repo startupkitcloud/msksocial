@@ -883,7 +883,7 @@ public class PostServiceimpl implements PostService {
                 .overrideOutputFiles(true)
                 .addOutput(path + "/video_post.mp4")
                 .setFormat("mp4")
-                .setVideoBitRate(10*1024*1024)
+                .setVideoBitRate(10*360*360)
                 .setAudioChannels(1)
                 .setAudioCodec("aac")
                 .setAudioSampleRate(48_000)
