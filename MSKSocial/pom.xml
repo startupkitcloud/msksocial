@@ -3,7 +3,7 @@
   	<modelVersion>4.0.0</modelVersion>
     <groupId>com.mangobits.startupkit.social</groupId>
     <artifactId>MSKSocial</artifactId>
-    <version>1.1.88</version>
+    <version>1.1.90</version>
     <packaging>ejb</packaging>
   
     <name>${project.groupId}:${project.artifactId}</name>
@@ -25,14 +25,7 @@
             <organizationUrl>https://www.mangobits.net</organizationUrl>
         </developer>
     </developers>
- 
-    <!-- <scm>
-        <connection>scm:git:git@github.com:IDRSolutions/maven-OpenViewerFX-src.git</connection>
-        <developerConnection>scm:git:git@github.com:IDRSolutions/maven-OpenViewerFX-src.git</developerConnection>
-        <url>git@github.com:IDRSolutions/maven-OpenViewerFX-src.git</url>
-    </scm> -->
- 
- 
+
  	<repositories>
 		<repository>
     		<id>mangobits-startupkit-repository</id>
@@ -51,10 +44,10 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         
         <!-- msk config versions -->
-		<msk-core-version>1.1.9</msk-core-version>
-		<msk-user-version>1.1.21</msk-user-version>
+		<msk-core-version>1.1.16</msk-core-version>
+		<msk-user-version>1.1.48</msk-user-version>
 		<msk-rs-version>1.1.0</msk-rs-version>
-		<msk-notification-version>1.1.5</msk-notification-version>
+		<msk-notification-version>1.1.8</msk-notification-version>
     </properties> 
     
     <dependencies>
@@ -217,7 +210,7 @@
 	<distributionManagement>
 		<repository>
 			<id>mangobits-startupkit-repository</id>
-			<url>http://dev.mangobits.net:8081/artifactory/libs-release-local/</url>
+			<url>http://artifactory.mangobits.com/artifactory/startupkit/</url>
 		</repository>
 	</distributionManagement>
 </project>

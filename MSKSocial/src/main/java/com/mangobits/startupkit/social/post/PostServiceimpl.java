@@ -6,10 +6,8 @@ import com.mangobits.startupkit.core.address.AddressUtils;
 import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
-import com.mangobits.startupkit.core.dao.OperationEnum;
 import com.mangobits.startupkit.core.dao.SearchBuilder;
 import com.mangobits.startupkit.core.dao.SearchProjection;
-import com.mangobits.startupkit.core.exception.ApplicationException;
 import com.mangobits.startupkit.core.exception.BusinessException;
 import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
@@ -26,14 +24,11 @@ import com.mangobits.startupkit.social.group.UserGroup;
 import com.mangobits.startupkit.social.groupInfo.GroupInfo;
 import com.mangobits.startupkit.social.groupInfo.GroupInfoService;
 import com.mangobits.startupkit.social.like.Like;
-import com.mangobits.startupkit.social.like.Likes;
 import com.mangobits.startupkit.social.like.LikesService;
 import com.mangobits.startupkit.social.postInfo.PostInfo;
 import com.mangobits.startupkit.social.postInfo.PostInfoDAO;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.survey.SurveyOption;
-import com.mangobits.startupkit.social.survey.SurveyService;
-
 import com.mangobits.startupkit.social.userSocial.UserSocial;
 import com.mangobits.startupkit.social.userSocial.UserSocialService;
 import com.mangobits.startupkit.user.User;
@@ -41,7 +36,6 @@ import com.mangobits.startupkit.user.UserCard;
 import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.preference.Preference;
 import com.mangobits.startupkit.user.preference.PreferenceService;
-
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
@@ -49,9 +43,10 @@ import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.search.query.dsl.BooleanJunction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -60,8 +55,10 @@ import org.jsoup.nodes.Element;
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.util.*;
 
 
@@ -1201,17 +1198,8 @@ public class PostServiceimpl implements PostService {
 //    }
 
     @Override
-    public String videoPath(String idPost) throws BusinessException, com.mangobits.startupkit.core.exception.ApplicationException {
-
-        String path;
-
-        try {
-            path = configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_post.mp4";
-        } catch (Exception e) {
-            throw new ApplicationException("Got an error loading the video path", e);
-        }
-
-        return path;
+    public String videoPath(String idPost) throws Exception {
+        return configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_post.mp4";
     }
 
 
