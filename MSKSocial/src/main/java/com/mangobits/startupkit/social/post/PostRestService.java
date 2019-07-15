@@ -875,4 +875,106 @@ public class PostRestService  extends UserBaseRestService {
 
     }
 
+    @POST
+    @Path("/uploadVideoAsync")
+    @Consumes("multipart/form-data")
+    public String uploadVideoAsync(MultipartFormDataInput input) throws IOException {
+
+        try {
+            Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+            InputPart inputPartsId = uploadForm.get("idObj").get(0);
+            String photoId = inputPartsId.getBody(String.class, null);
+
+            InputPart inputPartsName = uploadForm.get("name").get(0);
+            String photoName = inputPartsName.getBody(String.class, null);
+
+            InputPart videoFile = uploadForm.get("video_file").get(0);
+
+            PhotoUpload photoUpload = new PhotoUpload();
+            InputStream inputStream = videoFile.getBody(InputStream.class, null);
+
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            photoUpload.setPhotoBytes(bytes);
+            photoUpload.setIdObject(photoId);
+            photoUpload.setIdSubObject("video");
+            photoUpload.setTitle(photoName);
+
+            postService.saveVideoAsync(photoUpload);
+
+            InputPart imageFile = uploadForm.get("image_file").get(0);
+
+            photoUpload = new PhotoUpload();
+            inputStream = imageFile.getBody(InputStream.class, null);
+            bytes = IOUtils.toByteArray(inputStream);
+            photoUpload.setIdObject(photoId);
+            photoUpload.setPhotoBytes(bytes);
+            photoUpload.setIdSubObject("video");
+            photoUpload.setTitle(photoName);
+
+            Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
+            String path = configuration.getValue() + "/post/" + photoId;
+
+            // salva imagem do video
+            new PhotoUtils().saveImage(photoUpload, path, photoUpload.getIdSubObject());
+
+
+            StringBuilder textReturn = new StringBuilder();
+            textReturn.append("{");
+            textReturn.append("\n");
+            textReturn.append("\"idVideo\":" + "\"");
+            textReturn.append("video");
+            textReturn.append("\",");
+            textReturn.append("\n");
+            textReturn.append("\"name\":" + "\"");
+            textReturn.append(photoName);
+            textReturn.append("\"");
+            textReturn.append("\n");
+            textReturn.append("}");
+
+
+            return textReturn.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
+    @GET
+    @Path("/checkUploadVideo/{idPost}/{idVideo}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String checkUploadVideo(@PathParam("idPost") String idPost, @PathParam("idVideo") String idVideo) throws Exception {
+
+        String resultStr;
+        JsonContainer cont = new JsonContainer();
+
+        try {
+
+            Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
+
+            String path = configuration.getValue() + "/post/" + idPost + "/" + idVideo + "_android.mp4";
+
+            Boolean fgVideo = false;
+
+            File file = new File(path);
+
+            if (file.exists()) {
+                fgVideo = true;
+            }
+
+            cont.setData(fgVideo);
+
+        } catch (Exception e) {
+            handleException(cont, e, "checking Video");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        resultStr = mapper.writeValueAsString(cont);
+
+        return resultStr;
+    }
+
+
 }

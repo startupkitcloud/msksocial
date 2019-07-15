@@ -935,6 +935,45 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
+    @Asynchronous
+    public void saveVideoAsync(PhotoUpload photoUpload) throws Exception{
+
+        Post post = retrieve(photoUpload.getIdObject());
+
+        if(post == null){
+            throw new BusinessException("post_not_found");
+        }
+
+        //get the final size
+        int finalWidth = configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
+        photoUpload.setFinalWidth(finalWidth);
+
+        GalleryItem gi = new GalleryItem();
+        gi.setId(photoUpload.getIdSubObject());
+
+        if(post.getGallery() == null){
+            post.setGallery(new ArrayList<>());
+        }
+
+        GalleryItem item = post.getGallery().stream()
+                .filter(p -> p.getId().equals(gi.getId()))
+                .findFirst()
+                .orElse(null);
+
+
+        if(item == null){
+            post.getGallery().add(gi);
+            postDAO.update(post);
+        }
+
+        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
+
+        new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
+
+        saveVideoAndroid(post);
+    }
+
+    @Override
     public void saveVideoByParts(PhotoUpload photoUpload) throws Exception {
 
         if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")){
