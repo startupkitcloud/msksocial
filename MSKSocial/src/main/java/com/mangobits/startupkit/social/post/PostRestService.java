@@ -954,7 +954,7 @@ public class PostRestService  extends UserBaseRestService {
 
             Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
 
-            String path = configuration.getValue() + "/post/" + idPost + "/" + idVideo + "_android.mp4";
+            String path = configuration.getValue() + "/post/" + idPost + "/" + idVideo + "_post.mp4";
 
             Boolean fgVideo = false;
 
