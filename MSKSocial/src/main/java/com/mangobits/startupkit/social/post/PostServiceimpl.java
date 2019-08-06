@@ -55,10 +55,11 @@ import org.jsoup.nodes.Element;
 import javax.ejb.*;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -893,6 +894,7 @@ public class PostServiceimpl implements PostService {
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
         executor.createJob(builder).run();
         executor.createTwoPassJob(builder).run();
+
     }
 
 
@@ -971,6 +973,9 @@ public class PostServiceimpl implements PostService {
         new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
 
         saveVideoAndroid(post);
+
+        Path newFilePath = Paths.get(path + "/video_post.txt");
+        Files.createFile(newFilePath);
     }
 
     @Override
