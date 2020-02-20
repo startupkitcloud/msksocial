@@ -3,7 +3,7 @@
   	<modelVersion>4.0.0</modelVersion>
     <groupId>com.mangobits.startupkit.social</groupId>
     <artifactId>MSKSocial</artifactId>
-    <version>1.1.93</version>
+    <version>1.1.94</version>
     <packaging>ejb</packaging>
   
     <name>${project.groupId}:${project.artifactId}</name>
@@ -80,7 +80,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>3.2.2</version>
+			<version>3.12.1</version>
 			<scope>provided</scope>
 		</dependency>
 
