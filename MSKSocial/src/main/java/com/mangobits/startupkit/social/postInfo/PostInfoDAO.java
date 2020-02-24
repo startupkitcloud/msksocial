@@ -43,7 +43,7 @@ public class PostInfoDAO extends AbstractDAO<PostInfo> {
             DBObject unwindObj = new BasicDBObject( "path", "$listActiveComments");
             DBObject unwind = new BasicDBObject( "$unwind", unwindObj);
 
-            DBObject sortObj = new BasicDBObject( "listActiveComments.creationDate", -1);
+            DBObject sortObj = new BasicDBObject( "listActiveComments.creationDate", 1);
             DBObject sort = new BasicDBObject( "$sort", sortObj);
 
             DBObject limit = new BasicDBObject( "$limit", count);
