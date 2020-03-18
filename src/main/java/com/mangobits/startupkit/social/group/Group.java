@@ -13,7 +13,7 @@ import java.util.Date;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name= "group")
 @Indexed
-public class Group {
+public class   Group {
 
 
     @Id
