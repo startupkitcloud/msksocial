@@ -5,16 +5,10 @@ import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
 import com.mangobits.startupkit.core.configuration.ConfigurationService;
 import com.mangobits.startupkit.core.exception.BusinessException;
-import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.core.photo.PhotoUpload;
 import com.mangobits.startupkit.core.photo.PhotoUtils;
 import com.mangobits.startupkit.core.utils.FileUtil;
-import com.mangobits.startupkit.service.admin.util.AdminBaseRestService;
-import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.groupInfo.GroupInfoService;
-import com.mangobits.startupkit.social.post.Post;
-import com.mangobits.startupkit.social.post.PostSearch;
-import com.mangobits.startupkit.social.post.PostService;
 import com.mangobits.startupkit.user.User;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
@@ -28,9 +22,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Stateless
 @Path("/group")

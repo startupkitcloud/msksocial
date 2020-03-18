@@ -44,10 +44,10 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         
         <!-- msk config versions -->
-		<msk-core-version>1.1.16</msk-core-version>
-		<msk-user-version>1.1.48</msk-user-version>
-		<msk-rs-version>1.1.0</msk-rs-version>
-		<msk-notification-version>1.1.8</msk-notification-version>
+		<msk-core-version>1.2.1</msk-core-version>
+		<msk-user-version>1.2.0</msk-user-version>
+		<msk-rs-version>1.2.0</msk-rs-version>
+		<msk-notification-version>1.2.0</msk-notification-version>
     </properties> 
     
     <dependencies>
