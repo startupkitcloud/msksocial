@@ -6,7 +6,6 @@ import com.mangobits.startupkit.core.photo.GalleryItem;
 import com.mangobits.startupkit.social.comment.Comment;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.survey.Survey;
-import com.mangobits.startupkit.social.survey.SurveyOption;
 import com.mangobits.startupkit.user.UserCard;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.search.annotations.*;
@@ -16,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Entity(name= "post")
+@Entity(name = "post")
 @Indexed
 public class Post {
 
@@ -42,101 +41,67 @@ public class Post {
     @Field
     private String title;
 
-
+    @Field
+    private String idObj;
     // aonde o post vai estar, por exemplo, na home ou em outra tela
     @Field
     private String section;
-
-
     @IndexedEmbedded
     private UserCard userCreator;
-
-
     @IndexedEmbedded
     private Survey survey;
-
-
     private Integer likes;
-
-
     @Transient
     private Boolean fgSurveyAnswered;
-
-
-
     @Transient
     private Boolean fgFormAnswered;
-
     @Transient
     private Boolean fgFormRegistered;
-
-
-
     private Boolean fgNotification;
-
-
-
     @Transient
     private Double distance;
-
-
     private Integer comments;
-
-
     @Transient
     private Boolean fgLiked;
-
     @Transient
     private Boolean fgFavorite;
-
     @Field
     @IndexedEmbedded
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> listTags;
-
-
     @Transient
     private List<Comment> lastComments;
-
-
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<GalleryItem> gallery;
-
-
     @Field
     @Enumerated(EnumType.STRING)
     private PostStatusEnum status;
-
-
     @Field
     @Enumerated(EnumType.STRING)
     private PostTypeEnum type;
-
-
     @IndexedEmbedded
     private InfoUrl infoUrl;
-
-
     private Integer totalViews;
-
     @SortableField
     @Spatial
     @IndexedEmbedded
     private AddressInfo address;
 
 
-
-
-
-
-    public Post(){
+    public Post() {
     }
 
-    public Post(String id){
+    public Post(String id) {
         this.id = id;
     }
 
+    public String getIdObj() {
+        return idObj;
+    }
 
+    public void setIdObj(String idObj) {
+        this.idObj = idObj;
+    }
 
     public String getId() {
         return id;
@@ -169,7 +134,6 @@ public class Post {
     public void setUserCreator(UserCard userCard) {
         this.userCreator = userCard;
     }
-
 
 
     public Integer getLikes() {
@@ -251,6 +215,10 @@ public class Post {
         return lastComments;
     }
 
+    public void setLastComments(List<Comment> lastComments) {
+        this.lastComments = lastComments;
+    }
+
     public Boolean getFgLiked() {
         return fgLiked;
     }
@@ -266,11 +234,6 @@ public class Post {
     public void setFgFavorite(Boolean fgFavorite) {
         this.fgFavorite = fgFavorite;
     }
-
-    public void setLastComments(List<Comment> lastComments) {
-        this.lastComments = lastComments;
-    }
-
 
     public List<String> getListTags() {
         return listTags;
