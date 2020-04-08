@@ -41,8 +41,10 @@ public class Post {
     @Field
     private String title;
 
+    // campo criado para associar um post a um workspace
     @Field
     private String idObj;
+
     // aonde o post vai estar, por exemplo, na home ou em outra tela
     @Field
     private String section;
