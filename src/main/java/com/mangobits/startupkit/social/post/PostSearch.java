@@ -20,16 +20,21 @@ public class PostSearch {
 
     private String type;
 
-
-
     private String status;
-
 
     private String section;
 
+    private String idObj;
 
     private String idUserCreator;
 
+    public String getIdObj() {
+        return idObj;
+    }
+
+    public void setIdObj(String idObj) {
+        this.idObj = idObj;
+    }
 
     public String getIdUser() {
         return idUser;

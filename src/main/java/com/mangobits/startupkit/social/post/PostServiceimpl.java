@@ -107,27 +107,25 @@ public class PostServiceimpl implements PostService {
     private NotificationService notificationService;
 
 
-
     @Override
     public void changeStatus(String idPost, User user) throws Exception {
 
         Post post = retrieve(idPost);
 
-        if (post == null){
+        if (post == null) {
             throw new BusinessException("post_not_found");
         }
 
 
-        if (!post.getUserCreator().getId().equals(user.getId())){
-            if (user.getType() == null || !user.getType().equals("ADMIN")){
+        if (!post.getUserCreator().getId().equals(user.getId())) {
+            if (user.getType() == null || !user.getType().equals("ADMIN")) {
                 throw new BusinessException("user_must_be_creator_or_admin");
             }
         }
 
-        if(post.getStatus().equals(PostStatusEnum.ACTIVE)){
+        if (post.getStatus().equals(PostStatusEnum.ACTIVE)) {
             post.setStatus(PostStatusEnum.BLOCKED);
-        }
-        else{
+        } else {
             post.setStatus(PostStatusEnum.ACTIVE);
         }
 
@@ -138,30 +136,30 @@ public class PostServiceimpl implements PostService {
     @Override
     public void changePostNewsStatus(Post post) throws Exception {
 
-        if(post.getId() == null){
+        if (post.getId() == null) {
             throw new BusinessException("missing_post_id");
         }
 
-        if(post.getType() == null){
+        if (post.getType() == null) {
             throw new BusinessException("missing_post_type");
         }
 
-        if(post.getType() != PostTypeEnum.NEWS){
+        if (post.getType() != PostTypeEnum.NEWS) {
             throw new BusinessException("post_type_must_be_news");
         }
 
-        if(post.getStatus() == null){
+        if (post.getStatus() == null) {
             throw new BusinessException("missing_post_status");
         }
 
         Post postBase = postDAO.retrieve(new Post(post.getId()));
 
-        if(postBase == null){
+        if (postBase == null) {
             throw new BusinessException("post_not_found");
         }
 
         postBase.setStatus(post.getStatus());
-        if(!post.getListTags().isEmpty()){
+        if (!post.getListTags().isEmpty()) {
             postBase.setListTags(post.getListTags());
         }
 
@@ -176,7 +174,7 @@ public class PostServiceimpl implements PostService {
 //
 //        }
 
-        if(postBase.getStatus().equals(PostStatusEnum.ACTIVE) && post.getFgNotification() != null && post.getFgNotification()){
+        if (postBase.getStatus().equals(PostStatusEnum.ACTIVE) && post.getFgNotification() != null && post.getFgNotification()) {
             sendPostNewsNotification(postBase);
         }
 
@@ -187,16 +185,16 @@ public class PostServiceimpl implements PostService {
 
         List<UserCard> listUserCard = this.userService.listAll();
 
-        if(CollectionUtils.isNotEmpty(listUserCard)){
+        if (CollectionUtils.isNotEmpty(listUserCard)) {
 
-            for(UserCard userCard : listUserCard){
+            for (UserCard userCard : listUserCard) {
                 User user = userService.retrieve(userCard.getId());
                 String title = post.getInfoUrl().getTitle();
                 String message = "";
-                if (post.getTitle() != null){
+                if (post.getTitle() != null) {
                     message = post.getTitle();
                 }
-               sendNotification(user, title, post.getInfoUrl().getUrl(), post.getId(), message, "NEWS");
+                sendNotification(user, title, post.getInfoUrl().getUrl(), post.getId(), message, "NEWS");
             }
         }
     }
@@ -204,31 +202,31 @@ public class PostServiceimpl implements PostService {
     @Override
     public void save(Post post, Boolean sendGroupMessage) throws Exception {
 
-        if (post.getAddress() != null && post.getAddress().getLatitude() == null){
+        if (post.getAddress() != null && post.getAddress().getLatitude() == null) {
             new AddressUtils().geocodeAddress(post.getAddress());
         }
 
-        if(post.getId() == null){
+        if (post.getId() == null) {
             post.setCreationDate(new Date());
 
             Boolean createAsPending = Boolean.FALSE;
 
-            if (configurationService.loadByCode("CREATE_PENDING_POST") != null){
+            if (configurationService.loadByCode("CREATE_PENDING_POST") != null) {
                 createAsPending = Boolean.parseBoolean(configurationService.loadByCode("CREATE_PENDING_POST").getValue());
             }
 
-            if (createAsPending){
+            if (createAsPending) {
                 post.setStatus(PostStatusEnum.PENDING);
-            }else {
+            } else {
                 post.setStatus(PostStatusEnum.ACTIVE);
             }
 
-            if (post.getType() == PostTypeEnum.SURVEY){
+            if (post.getType() == PostTypeEnum.SURVEY) {
 
-                if (post.getSurvey() == null){
+                if (post.getSurvey() == null) {
                     throw new BusinessException("missing_survey");
                 }
-                for (SurveyOption item: post.getSurvey().getListSurveyOptions()){
+                for (SurveyOption item : post.getSurvey().getListSurveyOptions()) {
                     item.setNumberOfVotes(0d);
                     item.setPercentageOfVotes(0d);
                     item.setId(UUID.randomUUID().toString());
@@ -239,10 +237,10 @@ public class PostServiceimpl implements PostService {
 
             postDAO.insert(post);
 
-            if (post.getIdGroup() != null && sendGroupMessage){
+            if (post.getIdGroup() != null && sendGroupMessage) {
                 sendGroupMessage(post.getIdGroup(), post.getId());
             }
-        }else {
+        } else {
 
             new BusinessUtils<>(postDAO).basicSave(post);
         }
@@ -251,22 +249,22 @@ public class PostServiceimpl implements PostService {
 
 
     @Asynchronous
-    private void sendGroupMessage(String idGroup, String idPost) throws Exception{
+    private void sendGroupMessage(String idGroup, String idPost) throws Exception {
 
         GroupInfo groupInfo = groupInfoService.retrieve(idGroup);
 
         Group group = groupService.load(idGroup);
 
 
-        if (groupInfo == null){
+        if (groupInfo == null) {
             throw new BusinessException("groupInfo_not_found");
 
         }
-        if (groupInfo.getListUsers() != null){
+        if (groupInfo.getListUsers() != null) {
 
-            for (UserGroup userGroup : groupInfo.getListUsers()){
+            for (UserGroup userGroup : groupInfo.getListUsers()) {
                 User user = userService.retrieve(userGroup.getIdUser());
-                sendNotification(user, group.getTitle(), idPost, group.getId(),"Publicou um post", "GROUP_POST");
+                sendNotification(user, group.getTitle(), idPost, group.getId(), "Publicou um post", "GROUP_POST");
 
             }
         }
@@ -277,28 +275,28 @@ public class PostServiceimpl implements PostService {
     public void addComment(Comment comment) throws Exception {
 
 
-        if(comment.getIdPost() == null){
+        if (comment.getIdPost() == null) {
             throw new BusinessException("missing_idPost");
         }
-        if(comment.getStatus() == null){
+        if (comment.getStatus() == null) {
             comment.setStatus(SimpleStatusEnum.ACTIVE);
         }
 
-        if(comment.getId() == null){
+        if (comment.getId() == null) {
             comment.setCreationDate(new Date());
             comment.setId(UUID.randomUUID().toString());
         }
 
         // adiciona o comentário no postInfo
         PostInfo postInfo = postInfoDAO.retrieve(new PostInfo(comment.getIdPost()));
-        if (postInfo == null){
+        if (postInfo == null) {
             postInfo = new PostInfo();
             postInfo.setId(comment.getIdPost());
             postInfo.setListActiveComments(new ArrayList<>());
             postInfo.getListActiveComments().add(comment);
             postInfoDAO.insert(postInfo);
-        }else {
-            if (postInfo.getListActiveComments() == null){
+        } else {
+            if (postInfo.getListActiveComments() == null) {
                 postInfo.setListActiveComments(new ArrayList<>());
             }
             postInfo.getListActiveComments().add(comment);
@@ -308,11 +306,11 @@ public class PostServiceimpl implements PostService {
         // atualiza o comments do post
         Post postBase = retrieve(comment.getIdPost());
 
-        if (postBase == null){
+        if (postBase == null) {
             throw new BusinessException("post_not_found");
         }
 
-        if (postBase.getComments() == null){
+        if (postBase.getComments() == null) {
             postBase.setComments(0);
         }
         postBase.setComments(postBase.getComments() + 1);
@@ -324,22 +322,22 @@ public class PostServiceimpl implements PostService {
     @Override
     public void removeComment(Comment comment, String idUser) throws Exception {
 
-        if (!comment.getIdUser().equals(idUser)){
+        if (!comment.getIdUser().equals(idUser)) {
             throw new BusinessException("user_must_be_creator");
         }
 
-        if(comment.getIdPost() == null){
+        if (comment.getIdPost() == null) {
             throw new BusinessException("missing_idPost");
         }
-        if(comment.getId() == null){
+        if (comment.getId() == null) {
             throw new BusinessException("missing_idComment");
         }
 
         PostInfo postInfo = postInfoDAO.retrieve(new PostInfo(comment.getIdPost()));
-        if (postInfo == null){
+        if (postInfo == null) {
             throw new BusinessException("postInfo_not_found");
         }
-        if (postInfo.getListActiveComments() == null || postInfo.getListActiveComments().size() == 0){
+        if (postInfo.getListActiveComments() == null || postInfo.getListActiveComments().size() == 0) {
             throw new BusinessException("activeCommentsList_not_found");
         }
 
@@ -353,8 +351,8 @@ public class PostServiceimpl implements PostService {
         }
         postInfo.getListActiveComments().remove(commentbase);
 
-        if (postInfo.getListBlockedComments() == null){
-           postInfo.setListBlockedComments(new ArrayList<>());
+        if (postInfo.getListBlockedComments() == null) {
+            postInfo.setListBlockedComments(new ArrayList<>());
         }
         commentbase.setStatus(SimpleStatusEnum.BLOCKED);
         postInfo.getListBlockedComments().add(commentbase);
@@ -363,11 +361,11 @@ public class PostServiceimpl implements PostService {
         // atualiza o comments do post
         Post postBase = retrieve(comment.getIdPost());
 
-        if (postBase == null){
+        if (postBase == null) {
             throw new BusinessException("post_not_found");
         }
 
-        if (postBase.getComments() > 0){
+        if (postBase.getComments() > 0) {
             postBase.setComments(postBase.getComments() - 1);
         }
 
@@ -391,7 +389,7 @@ public class PostServiceimpl implements PostService {
         int totalAmount;
         List<Post> list;
 
-        if (postSearch.getPage() == null){
+        if (postSearch.getPage() == null) {
             throw new BusinessException("missing_page");
         }
 
@@ -404,10 +402,10 @@ public class PostServiceimpl implements PostService {
         sb.setQuery(qb.build());
 
         // verifica se o site passa a quantidade de itens por página
-        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
-            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() -1));
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0) {
+            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() - 1));
             sb.setMaxResults(postSearch.getPageItensNumber());
-        }else {
+        } else {
             sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
             sb.setMaxResults(TOTAL_POSTS_PAGE);
         }
@@ -421,9 +419,9 @@ public class PostServiceimpl implements PostService {
         totalAmount = totalAmount(sb);
 
         // verifica se o site passa a quantidade de itens por página
-        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
-           pageQuantity = pageQuantity(postSearch.getPageItensNumber(), totalAmount);
-        }else {
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0) {
+            pageQuantity = pageQuantity(postSearch.getPageItensNumber(), totalAmount);
+        } else {
             pageQuantity = pageQuantity(TOTAL_POSTS_PAGE, totalAmount);
         }
 
@@ -437,9 +435,9 @@ public class PostServiceimpl implements PostService {
 
     private int totalAmount(SearchBuilder sb) throws Exception {
 
-       int count = this.postDAO.count(sb.build());
+        int count = this.postDAO.count(sb.build());
 
-       return count;
+        return count;
 
     }
 
@@ -447,20 +445,21 @@ public class PostServiceimpl implements PostService {
 
         int pageQuantity;
 
-        if(totalAmount%numberOfItensByPage != 0) {
-            pageQuantity = (totalAmount/numberOfItensByPage)+1;
+        if (totalAmount % numberOfItensByPage != 0) {
+            pageQuantity = (totalAmount / numberOfItensByPage) + 1;
         } else {
-            pageQuantity = totalAmount/numberOfItensByPage;
+            pageQuantity = totalAmount / numberOfItensByPage;
         }
 
         return pageQuantity;
 
     }
 
+
     @Override
     public List<Post> search(PostSearch postSearch) throws Exception {
 
-        if (postSearch.getPage() == null){
+        if (postSearch.getPage() == null) {
             throw new BusinessException("missing_page");
         }
 
@@ -472,8 +471,8 @@ public class PostServiceimpl implements PostService {
                 .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
                         BooleanClause.Occur.MUST);
 
-        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()){
-            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(),BooleanClause.Occur.MUST);
+        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()) {
+            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(), BooleanClause.Occur.MUST);
         }
 
         if (postSearch.getType() != null) {
@@ -486,26 +485,30 @@ public class PostServiceimpl implements PostService {
                     .createQuery(), BooleanClause.Occur.MUST);
         }
 
+        if (postSearch.getIdObj() != null) {
+            qb.add(sb.getQueryBuilder().phrase().onField("idObj").sentence(postSearch.getIdObj()).createQuery(),
+                    BooleanClause.Occur.MUST);
+
+        }
+
         if (postSearch.getIdGroup() != null) {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("idGroup").sentence(postSearch.getIdGroup())
                     .createQuery(), BooleanClause.Occur.MUST);
-        }
-        else if (postSearch.getIdUserCreator() != null) {
+        } else if (postSearch.getIdUserCreator() != null) {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("userCreator.id").sentence(postSearch.getIdUserCreator())
                     .createQuery(), BooleanClause.Occur.MUST);
-        }
-        else if (postSearch.getIdUser() != null){
+        } else if (postSearch.getIdUser() != null) {
 
             BooleanQuery.Builder qb1 = new BooleanQuery.Builder();
             UserSocial userSocial = userSocialService.retrieve(postSearch.getIdUser());
             List<String> listIdGroups = new ArrayList<>();
-            if (userSocial != null && userSocial.getListGroups() != null && userSocial.getListGroups().size() > 0){
+            if (userSocial != null && userSocial.getListGroups() != null && userSocial.getListGroups().size() > 0) {
                 listIdGroups = userSocial.getListGroups();
             }
 
-            if(!listIdGroups.isEmpty()){
+            if (!listIdGroups.isEmpty()) {
                 BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
-                for(String idGroup : listIdGroups){
+                for (String idGroup : listIdGroups) {
                     bjGroup.should(sb.getQueryBuilder().keyword().onField("idGroup").matching(idGroup).createQuery());
                 }
                 qb1 = qb1.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
@@ -518,18 +521,18 @@ public class PostServiceimpl implements PostService {
 
             BooleanQuery.Builder qb3 = new BooleanQuery.Builder();
             List<Preference> listPreferences = preferenceService.listByUser(postSearch.getIdUser());
-            if(!listPreferences.isEmpty()) {
+            if (!listPreferences.isEmpty()) {
                 BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
-                for(Preference pref : listPreferences){
+                for (Preference pref : listPreferences) {
                     bjGroup.should(sb.getQueryBuilder().keyword().onField("listTags").matching(pref.getName()).createQuery());
                 }
                 qb3 = qb3.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
             }
 
             List<? extends Like> likes = likesService.listILike(postSearch.getIdUser(), "USER");
-            if(!likes.isEmpty()) {
+            if (!likes.isEmpty()) {
                 BooleanJunction<?> bjGroup = sb.getQueryBuilder().bool();
-                for(Like like : likes){
+                for (Like like : likes) {
                     bjGroup.should(sb.getQueryBuilder().keyword().onField("userCreator.id").matching(like.getIdObjectLiked()).createQuery());
                 }
                 qb3 = qb3.add(bjGroup.createQuery(), BooleanClause.Occur.SHOULD);
@@ -548,11 +551,11 @@ public class PostServiceimpl implements PostService {
 //            sb.appendParamQuery("desc|title|listTags", postSearch.getQueryString(), OperationEnum.OR_FIELDS);
 //        }
 
-        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
         sb.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
         sb.setSort(sort);
-        if (postSearch.getLat() != null && postSearch.getLog() != null){
+        if (postSearch.getLat() != null && postSearch.getLog() != null) {
             sb.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
         }
 
@@ -560,14 +563,14 @@ public class PostServiceimpl implements PostService {
         List<Post> list = postDAO.search(sb.build());
 
         //atualiza todos com com view + 1
-        if(list != null){
-            for(Post post : list){
+        if (list != null) {
+            for (Post post : list) {
 
-                if(post.getTotalViews() == null){
+                if (post.getTotalViews() == null) {
                     post.setTotalViews(0);
                 }
 
-                post.setTotalViews(post.getTotalViews()+1);
+                post.setTotalViews(post.getTotalViews() + 1);
                 postDAO.update(post);
 
 
@@ -587,7 +590,7 @@ public class PostServiceimpl implements PostService {
 
                     if (postLiked != null) {
                         post.setFgLiked(true);
-                    }else {
+                    } else {
                         post.setFgLiked(false);
                     }
 
@@ -600,11 +603,11 @@ public class PostServiceimpl implements PostService {
 
                     if (postFavorited != null) {
                         post.setFgFavorite(true);
-                    }else {
+                    } else {
                         post.setFgFavorite(false);
                     }
 
-                    if (post.getType() == PostTypeEnum.SURVEY){
+                    if (post.getType() == PostTypeEnum.SURVEY) {
 
                         // verifica se o post do tipo SURVEY já foi respondido pelo usuário
                         List<String> listUsersAnswered = post.getSurvey().getListUsers();
@@ -616,7 +619,7 @@ public class PostServiceimpl implements PostService {
 
                         if (idUser != null) {
                             post.setFgSurveyAnswered(true);
-                        }else {
+                        } else {
                             post.setFgSurveyAnswered(false);
                         }
                     }
@@ -632,7 +635,7 @@ public class PostServiceimpl implements PostService {
     @Override
     public List<Post> simpleSearch(PostSearch postSearch) throws Exception {
 
-        if (postSearch.getPage() == null){
+        if (postSearch.getPage() == null) {
             throw new BusinessException("missing_page");
         }
 
@@ -644,8 +647,8 @@ public class PostServiceimpl implements PostService {
                 .add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
                         BooleanClause.Occur.MUST);
 
-        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()){
-            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(),BooleanClause.Occur.MUST);
+        if (postSearch.getQueryString() != null && !postSearch.getQueryString().isEmpty()) {
+            qb.add(sb.getQueryBuilder().phrase().onField("title").andField("desc").andField("listTags").sentence(postSearch.getQueryString()).createQuery(), BooleanClause.Occur.MUST);
         }
 
         if (postSearch.getType() != null) {
@@ -665,11 +668,11 @@ public class PostServiceimpl implements PostService {
 
         sb.setQuery(qb.build());
 
-        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() -1));
+        sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
         sb.setMaxResults(TOTAL_POSTS_PAGE);
         Sort sort = new Sort(new SortField("creationDate", SortField.Type.LONG, true));
         sb.setSort(sort);
-        if (postSearch.getLat() != null && postSearch.getLog() != null){
+        if (postSearch.getLat() != null && postSearch.getLog() != null) {
             sb.setProjection(new SearchProjection(postSearch.getLat(), postSearch.getLog(), "address", "distance"));
         }
 
@@ -677,14 +680,14 @@ public class PostServiceimpl implements PostService {
         List<Post> list = postDAO.search(sb.build());
 
         //atualiza todos com com view + 1
-        if(list != null){
-            for(Post post : list){
+        if (list != null) {
+            for (Post post : list) {
 
-                if(post.getTotalViews() == null){
+                if (post.getTotalViews() == null) {
                     post.setTotalViews(0);
                 }
 
-                post.setTotalViews(post.getTotalViews()+1);
+                post.setTotalViews(post.getTotalViews() + 1);
                 postDAO.update(post);
 
 
@@ -704,7 +707,7 @@ public class PostServiceimpl implements PostService {
 
                     if (postLiked != null) {
                         post.setFgLiked(true);
-                    }else {
+                    } else {
                         post.setFgLiked(false);
                     }
 
@@ -717,11 +720,11 @@ public class PostServiceimpl implements PostService {
 
                     if (postFavorited != null) {
                         post.setFgFavorite(true);
-                    }else {
+                    } else {
                         post.setFgFavorite(false);
                     }
 
-                    if (post.getType() == PostTypeEnum.SURVEY){
+                    if (post.getType() == PostTypeEnum.SURVEY) {
 
                         // verifica se o post do tipo SURVEY já foi respondido pelo usuário
                         List<String> listUsersAnswered = post.getSurvey().getListUsers();
@@ -733,7 +736,7 @@ public class PostServiceimpl implements PostService {
 
                         if (idUser != null) {
                             post.setFgSurveyAnswered(true);
-                        }else {
+                        } else {
                             post.setFgSurveyAnswered(false);
                         }
                     }
@@ -753,7 +756,7 @@ public class PostServiceimpl implements PostService {
         int totalAmount;
         List<Post> list;
 
-        if (postSearch.getPage() == null){
+        if (postSearch.getPage() == null) {
             throw new BusinessException("missing_page");
         }
 
@@ -761,26 +764,32 @@ public class PostServiceimpl implements PostService {
         BooleanQuery.Builder qb = new BooleanQuery.Builder();
 
 
-        if (postSearch.getStatus() != null){
+        if (postSearch.getStatus() != null) {
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence(postSearch.getStatus()).createQuery(),
                     BooleanClause.Occur.MUST);
 
-        }else {
+        } else {
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("ACTIVE").createQuery(),
-                            BooleanClause.Occur.SHOULD);
+                    BooleanClause.Occur.SHOULD);
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("BLOCKED").createQuery(),
                     BooleanClause.Occur.SHOULD);
             qb.add(sb.getQueryBuilder().phrase().onField("status").sentence("PENDING").createQuery(),
                     BooleanClause.Occur.SHOULD);
         }
 
-        if (postSearch.getType() != null){
+        if (postSearch.getType() != null) {
             qb.add(sb.getQueryBuilder().phrase().onField("type").sentence(postSearch.getType()).createQuery(),
                     BooleanClause.Occur.MUST);
 
         }
-        if (postSearch.getSection() != null){
+        if (postSearch.getSection() != null) {
             qb.add(sb.getQueryBuilder().phrase().onField("section").sentence(postSearch.getSection()).createQuery(),
+                    BooleanClause.Occur.MUST);
+
+        }
+
+        if (postSearch.getIdObj() != null) {
+            qb.add(sb.getQueryBuilder().phrase().onField("idObj").sentence(postSearch.getIdObj()).createQuery(),
                     BooleanClause.Occur.MUST);
 
         }
@@ -788,10 +797,10 @@ public class PostServiceimpl implements PostService {
         sb.setQuery(qb.build());
 
         // verifica se o site passa a quantidade de itens por página
-        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
-            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() -1));
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0) {
+            sb.setFirst(postSearch.getPageItensNumber() * (postSearch.getPage() - 1));
             sb.setMaxResults(postSearch.getPageItensNumber());
-        }else {
+        } else {
             sb.setFirst(TOTAL_POSTS_PAGE * (postSearch.getPage() - 1));
             sb.setMaxResults(TOTAL_POSTS_PAGE);
         }
@@ -805,9 +814,9 @@ public class PostServiceimpl implements PostService {
         totalAmount = totalAmount(sb);
 
         // verifica se o site passa a quantidade de itens por página
-        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0){
+        if (postSearch.getPageItensNumber() != null && postSearch.getPageItensNumber() > 0) {
             pageQuantity = pageQuantity(postSearch.getPageItensNumber(), totalAmount);
-        }else {
+        } else {
             pageQuantity = pageQuantity(TOTAL_POSTS_PAGE, totalAmount);
         }
 
@@ -822,17 +831,17 @@ public class PostServiceimpl implements PostService {
     @Override
     public Post retrieve(String idPost) throws Exception {
 
-        Post post =  postDAO.retrieve(new Post(idPost));
+        Post post = postDAO.retrieve(new Post(idPost));
 
         return post;
     }
 
     @Override
-    public void saveImage(PhotoUpload photoUpload) throws Exception{
+    public void saveImage(PhotoUpload photoUpload) throws Exception {
 
         Post post = retrieve(photoUpload.getIdObject());
 
-        if(post == null){
+        if (post == null) {
             throw new BusinessException("post_not_found");
         }
 
@@ -843,7 +852,7 @@ public class PostServiceimpl implements PostService {
         GalleryItem gi = new GalleryItem();
         gi.setId(photoUpload.getIdSubObject());
 
-        if(post.getGallery() == null){
+        if (post.getGallery() == null) {
             post.setGallery(new ArrayList<>());
         }
 
@@ -853,7 +862,7 @@ public class PostServiceimpl implements PostService {
                 .orElse(null);
 
 
-        if(item == null){
+        if (item == null) {
             post.getGallery().add(gi);
             postDAO.update(post);
         }
@@ -864,11 +873,11 @@ public class PostServiceimpl implements PostService {
     }
 
 
-    private void saveVideoAndroid(Post post) throws Exception{
+    private void saveVideoAndroid(Post post) throws Exception {
 
         Configuration ffmepgPath = configurationService.loadByCode("PATH_FFMPEG");
 
-        if(ffmepgPath == null){
+        if (ffmepgPath == null) {
             throw new BusinessException("You need define PATH_FFMPEG configuration");
         }
 
@@ -881,7 +890,7 @@ public class PostServiceimpl implements PostService {
                 .overrideOutputFiles(true)
                 .addOutput(path + "/video_post.mp4")
                 .setFormat("mp4")
-                .setVideoBitRate(10*360*360)
+                .setVideoBitRate(10 * 360 * 360)
                 .setAudioChannels(1)
                 .setAudioCodec("aac")
                 .setAudioSampleRate(48_000)
@@ -899,11 +908,11 @@ public class PostServiceimpl implements PostService {
 
 
     @Override
-    public void saveVideo(PhotoUpload photoUpload) throws Exception{
+    public void saveVideo(PhotoUpload photoUpload) throws Exception {
 
         Post post = retrieve(photoUpload.getIdObject());
 
-        if(post == null){
+        if (post == null) {
             throw new BusinessException("post_not_found");
         }
 
@@ -914,7 +923,7 @@ public class PostServiceimpl implements PostService {
         GalleryItem gi = new GalleryItem();
         gi.setId(photoUpload.getIdSubObject());
 
-        if(post.getGallery() == null){
+        if (post.getGallery() == null) {
             post.setGallery(new ArrayList<>());
         }
 
@@ -924,7 +933,7 @@ public class PostServiceimpl implements PostService {
                 .orElse(null);
 
 
-        if(item == null){
+        if (item == null) {
             post.getGallery().add(gi);
             postDAO.update(post);
         }
@@ -938,11 +947,11 @@ public class PostServiceimpl implements PostService {
 
     @Override
     @Asynchronous
-    public void saveVideoAsync(PhotoUpload photoUpload) throws Exception{
+    public void saveVideoAsync(PhotoUpload photoUpload) throws Exception {
 
         Post post = retrieve(photoUpload.getIdObject());
 
-        if(post == null){
+        if (post == null) {
             throw new BusinessException("post_not_found");
         }
 
@@ -953,7 +962,7 @@ public class PostServiceimpl implements PostService {
         GalleryItem gi = new GalleryItem();
         gi.setId(photoUpload.getIdSubObject());
 
-        if(post.getGallery() == null){
+        if (post.getGallery() == null) {
             post.setGallery(new ArrayList<>());
         }
 
@@ -963,7 +972,7 @@ public class PostServiceimpl implements PostService {
                 .orElse(null);
 
 
-        if(item == null){
+        if (item == null) {
             post.getGallery().add(gi);
             postDAO.update(post);
         }
@@ -981,12 +990,12 @@ public class PostServiceimpl implements PostService {
     @Override
     public void saveVideoByParts(PhotoUpload photoUpload) throws Exception {
 
-        if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")){
+        if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("last")) {
 
             String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
 
             // adiciona o texto
-            BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(photoUpload.getPhoto());
             writer.close();
 
@@ -995,12 +1004,12 @@ public class PostServiceimpl implements PostService {
             try {
                 String everything = IOUtils.toString(inputStream);
 
-                if (everything != null){
+                if (everything != null) {
 
                     String[] parts = everything.split("\\|\\|\\|\\|");
                     List<Byte> jezz = new ArrayList<>();
 
-                    for(String part: parts){
+                    for (String part : parts) {
                         byte[] data = Base64.decodeBase64(part);
                         jezz.addAll(Bytes.asList(data));
                     }
@@ -1013,7 +1022,7 @@ public class PostServiceimpl implements PostService {
                 inputStream.close();
             }
 
-        }else  if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("first")){
+        } else if (photoUpload.getTitle() != null && photoUpload.getTitle().equals("first")) {
 
             String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject();
 
@@ -1021,17 +1030,16 @@ public class PostServiceimpl implements PostService {
             File folder = new File(filePath);
             folder.mkdirs();
             File destiny = new File(filePath, "/main.txt");
-            BufferedWriter  writer = new BufferedWriter(new FileWriter(destiny, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(destiny, true));
             writer.append(photoUpload.getPhoto());
             writer.append("||||");
             writer.close();
-        }
-        else {
+        } else {
             String filePath = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/videoStr/" + photoUpload.getIdObject() + "/main.txt";
 
             //  adiciona o texto
 
-            BufferedWriter  writer = new BufferedWriter(new FileWriter(filePath, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(photoUpload.getPhoto());
             writer.append("||||");
             writer.close();
@@ -1053,40 +1061,39 @@ public class PostServiceimpl implements PostService {
     }
 
 
-
     @Override
     public void like(Like like) throws Exception {
 
-        if (like.getIdObjectLiked() == null){
+        if (like.getIdObjectLiked() == null) {
             throw new BusinessException("missing_object_liked");
         }
-        if (like.getIdObjectLiker() == null){
+        if (like.getIdObjectLiker() == null) {
             throw new BusinessException("missing_object_liker");
         }
 
-        if (like.getTypeObjectLiked().equals("POST")){
+        if (like.getTypeObjectLiked().equals("POST")) {
 
             Boolean remove = likesService.like(like);
 
             Post post = postDAO.retrieve(new Post(like.getIdObjectLiked()));
 
-            if (post == null){
+            if (post == null) {
                 throw new BusinessException("post_not_found");
             }
 
-            if (remove){
+            if (remove) {
 
-                if (post.getLikes() != null && post.getLikes() > 0){
+                if (post.getLikes() != null && post.getLikes() > 0) {
                     post.setLikes(post.getLikes() - 1);
-                }else {
+                } else {
                     post.setLikes(0);
                 }
 
-            }else {
+            } else {
 
-                if (post.getLikes() != null){
+                if (post.getLikes() != null) {
                     post.setLikes(post.getLikes() + 1);
-                }else {
+                } else {
                     post.setLikes(1);
                 }
 
@@ -1103,7 +1110,7 @@ public class PostServiceimpl implements PostService {
         List<Like> listLikes = (List<Like>) likesService.listILike(idUser, "POST");
         List<String> listIdPosts = new ArrayList<>();
 
-        for(Like like : listLikes){
+        for (Like like : listLikes) {
 
             String idPost = like.getIdObjectLiked();
             listIdPosts.add(idPost);
@@ -1114,18 +1121,18 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
-    public Boolean favorite (String idPost, String idUser) throws Exception {
+    public Boolean favorite(String idPost, String idUser) throws Exception {
 
-       Boolean remove = userSocialService.favoritePost(idPost, idUser);
+        Boolean remove = userSocialService.favoritePost(idPost, idUser);
 
-       return remove;
+        return remove;
 
     }
 
 
     private List<String> listPostFavorite(String idUser) throws Exception {
 
-        UserSocial userSocial =  userSocialService.retrieve(idUser);
+        UserSocial userSocial = userSocialService.retrieve(idUser);
         List<String> list = new ArrayList<>();
 
         if (userSocial != null && userSocial.getListFavorites() != null) {
@@ -1137,9 +1144,9 @@ public class PostServiceimpl implements PostService {
     }
 
     @Override
-    public List<Post> listFavorites (PostSearch postSearch) throws Exception {
+    public List<Post> listFavorites(PostSearch postSearch) throws Exception {
 
-        if (postSearch.getIdUser() == null){
+        if (postSearch.getIdUser() == null) {
             throw new BusinessException("missing_idUser");
         }
 
@@ -1208,16 +1215,15 @@ public class PostServiceimpl implements PostService {
             Document doc = Jsoup.connect(url).get();
             Element elTitle = doc.select("meta[name=title]").first();
 
-            if(elTitle != null){
+            if (elTitle != null) {
                 infoUrl.setTitle(elTitle.attr("content"));
-            }
-            else{
+            } else {
                 infoUrl.setTitle(doc.select("title").first().html());
             }
 
 
             Element elFoto = doc.select("meta[property=og:image]").first();
-            if(elFoto != null){
+            if (elFoto != null) {
                 infoUrl.setUrlPhoto(elFoto.attr("content"));
             }
 
@@ -1257,25 +1263,25 @@ public class PostServiceimpl implements PostService {
         Date dateLast = dateCalendar(expireDate, false);
 
         Map<String, Object> params = new HashMap<>();
-       // params.put("gte:creationDate", dateInitial);
+        // params.put("gte:creationDate", dateInitial);
         params.put("lte:creationDate", dateLast);
         params.put("status", PostStatusEnum.PENDING);
 
         List<Post> list = postDAO.search(params);
 
         for (Post item : list) {
-                item.setStatus(PostStatusEnum.BLOCKED);
-                postDAO.update(item);
+            item.setStatus(PostStatusEnum.BLOCKED);
+            postDAO.update(item);
         }
 
     }
 
-    private Date dateCalendar (Calendar expireDate, boolean initial){
+    private Date dateCalendar(Calendar expireDate, boolean initial) {
 
-        if(initial){
+        if (initial) {
             expireDate.set(Calendar.HOUR_OF_DAY, 0);
             expireDate.set(Calendar.MINUTE, 0);
-        }else{
+        } else {
             expireDate.set(Calendar.HOUR_OF_DAY, 23);
             expireDate.set(Calendar.MINUTE, 59);
         }
