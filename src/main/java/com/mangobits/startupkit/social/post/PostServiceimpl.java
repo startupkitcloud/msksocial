@@ -660,6 +660,10 @@ public class PostServiceimpl implements PostService {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("section").sentence(postSearch.getSection())
                     .createQuery(), BooleanClause.Occur.MUST);
         }
+        if (postSearch.getIdObj() != null) {
+            qb = qb.add(sb.getQueryBuilder().phrase().onField("idObj").sentence(postSearch.getIdObj())
+                    .createQuery(), BooleanClause.Occur.MUST);
+        }
 
         if (postSearch.getIdUserCreator() != null) {
             qb = qb.add(sb.getQueryBuilder().phrase().onField("userCreator.id").sentence(postSearch.getIdUserCreator())
