@@ -2,6 +2,7 @@ package com.mangobits.startupkit.social.post;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mangobits.startupkit.admin.userb.UserBService;
 import com.mangobits.startupkit.admin.util.SecuredAdmin;
 import com.mangobits.startupkit.core.configuration.Configuration;
 import com.mangobits.startupkit.core.configuration.ConfigurationEnum;
@@ -17,6 +18,7 @@ import com.mangobits.startupkit.social.postInfo.PostInfoService;
 import com.mangobits.startupkit.social.spider.InfoUrl;
 import com.mangobits.startupkit.social.spider.SpiderService;
 import com.mangobits.startupkit.user.User;
+import com.mangobits.startupkit.user.UserService;
 import com.mangobits.startupkit.user.util.SecuredUser;
 import com.mangobits.startupkit.user.util.UserBaseRestService;
 import com.mangobits.startupkit.ws.JsonContainer;
@@ -26,11 +28,9 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -44,7 +44,7 @@ import java.util.UUID;
 
 @Stateless
 @Path("/post")
-public class PostRestService  extends UserBaseRestService {
+public class PostRestService extends UserBaseRestService {
 
 
     @EJB
@@ -52,6 +52,15 @@ public class PostRestService  extends UserBaseRestService {
 
     @EJB
     private PostInfoService postInfoService;
+
+    @EJB
+    private UserBService userBService;
+
+    @EJB
+    private UserService userService;
+
+    @Context
+    private HttpServletRequest requestB;
 
     @EJB
     private ConfigurationService configurationService;
@@ -67,12 +76,17 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/save")
-    public String save(Post post)  throws Exception{
+    public String save(Post post) throws Exception {
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
 
         try {
+            String authorizationHeader = this.requestB.getHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring("Bearer".length()).trim();
+                post.setIdObj(this.userService.retrieveByToken(token).getCode());
+            }
 
             postService.save(post, true);
             cont.setData(post);
@@ -93,13 +107,17 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/saveAdmin")
-    public String saveAdmin(Post post)  throws Exception{
+    public String saveAdmin(Post post) throws Exception {
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
 
         try {
-
+            String authorizationHeader = this.requestB.getHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring("Bearer".length()).trim();
+                post.setIdObj(this.userBService.retrieveByToken(token).getIdObj());
+            }
             postService.save(post, true);
             cont.setData(post);
 
@@ -141,7 +159,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/listPending")
-    public String listPending(PostSearch postSearch)  throws Exception{
+    public String listPending(PostSearch postSearch) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -162,17 +180,23 @@ public class PostRestService  extends UserBaseRestService {
         return resultStr;
     }
 
+    @SecuredAdmin
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/searchAdmin")
-    public String searchAdmin(PostSearch postSearch)  throws Exception{
+    public String searchAdmin(PostSearch postSearch) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
 
-        try {
 
+        try {
+            String authorizationHeader = this.requestB.getHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring("Bearer".length()).trim();
+                postSearch.setIdObj(this.userBService.retrieveByToken(token).getIdObj());
+            }
             PostResultSearch result = postService.searchAdmin(postSearch);
             cont.setData(result);
 
@@ -192,7 +216,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/search")
-    public String search(PostSearch postSearch)  throws Exception{
+    public String search(PostSearch postSearch) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -217,7 +241,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/simpleSearch")
-    public String simpleSearch(PostSearch postSearch)  throws Exception{
+    public String simpleSearch(PostSearch postSearch) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -298,7 +322,7 @@ public class PostRestService  extends UserBaseRestService {
         try {
 
             User user = getUserTokenSession();
-            if (user == null){
+            if (user == null) {
                 throw new BusinessException("user_not_found");
             }
 
@@ -327,7 +351,7 @@ public class PostRestService  extends UserBaseRestService {
         try {
 
             User user = getUserTokenSession();
-            if (user == null){
+            if (user == null) {
                 throw new BusinessException("user_not_found");
             }
 
@@ -354,12 +378,12 @@ public class PostRestService  extends UserBaseRestService {
         JsonContainer cont = new JsonContainer();
 
         User user = getUserTokenSession();
-        if (user == null){
+        if (user == null) {
             throw new BusinessException("user_not_found");
         }
         Double lat = null;
         Double log = null;
-        if (user.getLastAddress()!= null && user.getLastAddress().getLatitude() != null){
+        if (user.getLastAddress() != null && user.getLastAddress().getLatitude() != null) {
             lat = user.getLastAddress().getLatitude();
             log = user.getLastAddress().getLongitude();
         }
@@ -387,7 +411,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/listFavorites")
-    public String listFavorites(PostSearch postSearch)  throws Exception{
+    public String listFavorites(PostSearch postSearch) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -413,7 +437,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/changePostNewsStatus")
-    public String changePostNewsStatus(Post post)  throws Exception{
+    public String changePostNewsStatus(Post post) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -454,15 +478,15 @@ public class PostRestService  extends UserBaseRestService {
                 if (!file.exists()) {
                     path = configuration.getValue() + "/post/" + "placeholder" + "/main.jpg";
                 }
-                ByteArrayInputStream in =  new ByteArrayInputStream(FileUtil.readFile(path));
+                ByteArrayInputStream in = new ByteArrayInputStream(FileUtil.readFile(path));
 
                 byte[] buf = new byte[16384];
 
                 int len = in.read(buf);
 
-                while(len!=-1) {
+                while (len != -1) {
 
-                    out.write(buf,0,len);
+                    out.write(buf, 0, len);
 
                     len = in.read(buf);
                 }
@@ -475,13 +499,12 @@ public class PostRestService  extends UserBaseRestService {
     }
 
 
-
     @SecuredUser
     @POST
     @Path("/saveImage")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String saveImage(PhotoUpload photoUpload) throws Exception{
+    public String saveImage(PhotoUpload photoUpload) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -505,7 +528,7 @@ public class PostRestService  extends UserBaseRestService {
     @Path("/saveVideo")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String saveVideo(PhotoUpload photoUpload) throws Exception{
+    public String saveVideo(PhotoUpload photoUpload) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -529,7 +552,7 @@ public class PostRestService  extends UserBaseRestService {
     @Path("/saveVideoByParts")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String saveVideoByParts(PhotoUpload photoUpload) throws Exception{
+    public String saveVideoByParts(PhotoUpload photoUpload) throws Exception {
 
         String resultStr;
         JsonContainer cont = new JsonContainer();
@@ -555,7 +578,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/like")
-    public String like(Like like)  throws Exception{
+    public String like(Like like) throws Exception {
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
@@ -567,7 +590,7 @@ public class PostRestService  extends UserBaseRestService {
 
         } catch (Exception e) {
 
-            if(!(e instanceof BusinessException)){
+            if (!(e instanceof BusinessException)) {
                 e.printStackTrace();
             }
 
@@ -589,7 +612,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/addComment")
-    public String addComment(Comment comment)  throws Exception{
+    public String addComment(Comment comment) throws Exception {
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
@@ -601,7 +624,7 @@ public class PostRestService  extends UserBaseRestService {
 
         } catch (Exception e) {
 
-            if(!(e instanceof BusinessException)){
+            if (!(e instanceof BusinessException)) {
                 e.printStackTrace();
             }
 
@@ -623,7 +646,7 @@ public class PostRestService  extends UserBaseRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Path("/removeComment")
-    public String removeComment(Comment comment)  throws Exception{
+    public String removeComment(Comment comment) throws Exception {
 
         String resultStr = null;
         JsonContainer cont = new JsonContainer();
@@ -631,7 +654,7 @@ public class PostRestService  extends UserBaseRestService {
         try {
 
             User user = getUserTokenSession();
-            if (user == null){
+            if (user == null) {
                 throw new BusinessException("user_not_found");
             }
 
@@ -640,7 +663,7 @@ public class PostRestService  extends UserBaseRestService {
 
         } catch (Exception e) {
 
-            if(!(e instanceof BusinessException)){
+            if (!(e instanceof BusinessException)) {
                 e.printStackTrace();
             }
 
@@ -727,10 +750,9 @@ public class PostRestService  extends UserBaseRestService {
                         final WritableByteChannel outputChannel = Channels.newChannel(output);
                         try {
                             inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
 
-                        }finally {
+                        } finally {
                             // closing the channels
                             try {
                                 inputChannel.close();
@@ -792,14 +814,14 @@ public class PostRestService  extends UserBaseRestService {
         @Override
         public void write(OutputStream outputStream) throws IOException, WebApplicationException {
             try {
-                while( length != 0) {
+                while (length != 0) {
                     int read = raf.read(buf, 0, buf.length > length ? length : buf.length);
                     outputStream.write(buf, 0, read);
                     length -= read;
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
 
-            }finally {
+            } finally {
                 raf.close();
             }
         }
