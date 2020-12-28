@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   
   	<modelVersion>4.0.0</modelVersion>
-    <groupId>com.mangobits.startupkit.social</groupId>
+    <groupId>org.startupkit.social</groupId>
     <artifactId>MSKSocial</artifactId>
-    <version>1.2.1</version>
+    <version>2.1.0</version>
     <packaging>ejb</packaging>
   
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>MangoBits StartupKit Social</description>
-    <url>http://startupkit.mangobits.com/</url>
+    <description>StartupKit Social</description>
+    <url>http://www.startupkit.cloud/</url>
  
     <licenses>
         <license>
@@ -20,16 +20,16 @@
     <developers>
         <developer>
             <name>Diego Mondego</name>
-            <email>diego@mangobits.net</email>
-            <organization>MangoBits</organization>
-            <organizationUrl>https://www.mangobits.net</organizationUrl>
+            <email>diego@startupkit.cloud</email>
+            <organization>StartupKit</organization>
+            <organizationUrl>https://www.startupkit.cloud</organizationUrl>
         </developer>
     </developers>
 
  	<repositories>
 		<repository>
-    		<id>mangobits-startupkit-repository</id>
-    		<url>http://artifactory.mangobits.com/artifactory/startupkit/</url>
+    		<id>startupkit-repository</id>
+    		<url>http://artifactory.startupkit.cloud/artifactory/startupkit/</url>
 		</repository>
 		
 		<repository>
@@ -40,121 +40,39 @@
  
  	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>13</maven.compiler.source>
+        <maven.compiler.target>13</maven.compiler.target>
         
         <!-- msk config versions -->
-		<msk-core-version>1.2.1</msk-core-version>
-		<msk-user-version>1.2.0</msk-user-version>
-		<msk-rs-version>1.2.0</msk-rs-version>
-		<msk-notification-version>1.2.0</msk-notification-version>
+		<msk-core-version>2.1.1</msk-core-version>
+		<msk-user-version>2.1.0</msk-user-version>
+		<msk-notification-version>2.1.0</msk-notification-version>
     </properties> 
     
     <dependencies>
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
-			<version>7.0</version>
+			<version>8.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.6.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate.ogm</groupId>
-			<artifactId>hibernate-ogm-core</artifactId>
-			<version>5.0.0.Final</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate.ogm</groupId>
-			<artifactId>hibernate-ogm-mongodb</artifactId>
-			<version>5.0.0.Final</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongo-java-driver</artifactId>
-			<version>3.12.1</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-search</artifactId>
-			<version>5.5.4.Final</version>
-			<scope>provided</scope>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.3</version>
-			<type>jar</type>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<version>1.9.3</version>
-			<type>jar</type>
-		</dependency>
-
-
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.9</version>
-		</dependency>
-		
-		
-		<dependency>
-    		<groupId>com.mangobits.startupkit.core</groupId>
+    		<groupId>org.startupkit.core</groupId>
     		<artifactId>MSKCore</artifactId>
     		<version>${msk-core-version}</version>
 		</dependency>
 
-		
-		<dependency> 
-    		<groupId>com.mangobits.startupkit.ws</groupId>
-    		<artifactId>MSKRs</artifactId> 
-    		<version>${msk-rs-version}</version>
-		</dependency>
-
 		<dependency>
-			<groupId>com.mangobits.startupkit.notification</groupId>
+			<groupId>org.startupkit.notification</groupId>
 			<artifactId>MSKNotification</artifactId>
 			<version>${msk-notification-version}</version>
 		</dependency>
 
-
 		<dependency>
-			<groupId>com.mangobits.startupkit.user</groupId>
+			<groupId>org.startupkit.user</groupId>
 			<artifactId>MSKUser</artifactId>
 			<version>${msk-user-version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -174,8 +92,7 @@
 			<artifactId>ffmpeg</artifactId>
 			<version>0.6.2</version>
 		</dependency>
-
-    </dependencies>
+	</dependencies>
     
     
  
@@ -209,8 +126,8 @@
 
 	<distributionManagement>
 		<repository>
-			<id>mangobits-startupkit-repository</id>
-			<url>http://artifactory.mangobits.com/artifactory/startupkit/</url>
+			<id>startupkit-repository</id>
+			<url>http://artifactory.startupkit.cloud/artifactory/startupkit/</url>
 		</repository>
 	</distributionManagement>
 </project>
