@@ -3,7 +3,7 @@
   	<modelVersion>4.0.0</modelVersion>
     <groupId>org.startupkit.social</groupId>
     <artifactId>MSKSocial</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <packaging>ejb</packaging>
   
     <name>${project.groupId}:${project.artifactId}</name>
@@ -115,7 +115,6 @@
 								<addClasspath>true</addClasspath>
 							</manifest>
 				            <manifestEntries>
-				               <Dependencies>org.hibernate.ogm:5.0 services, org.hibernate.ogm.mongodb:5.0 services</Dependencies>
 				            </manifestEntries>
 				         </archive>
 					</configuration>
