@@ -774,8 +774,8 @@ public class PostServiceimpl implements PostService {
 
         String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
 
-        FFprobe ffprobe = new FFprobe(ffmepgPath.getValue() + "/ffprobe");
-        FFmpeg ffmpeg = new FFmpeg(ffmepgPath.getValue() + "/ffmpeg");
+        FFprobe ffprobe = new FFprobe(ffmepgPath.getValue() + "ffprobe");
+        FFmpeg ffmpeg = new FFmpeg(ffmepgPath.getValue() + "ffmpeg");
         FFmpegBuilder builder = new FFmpegBuilder()
                 .setInput(path + "/video_original.mp4")
                 .overrideOutputFiles(true)

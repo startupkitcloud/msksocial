@@ -57,7 +57,6 @@ public class Post {
     private Integer comments;
 
     @BsonIgnore
-
     private Boolean fgLiked;
 
     @BsonIgnore

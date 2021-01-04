@@ -31,6 +31,7 @@ public class LikesServiceImpl implements LikesService {
             boolean remove = false;
 
             if(likesLiked == null){
+                insertLiked = true;
                 likesLiked = new Likes();
                 likesLiked.setIdOjbect(like.getIdObjectLiked());
                 likesLiked.setTypeObject(like.getTypeObjectLiked());
@@ -67,6 +68,7 @@ public class LikesServiceImpl implements LikesService {
             boolean insertLiker = false;
 
             if(likesLiker == null){
+                insertLiker = true;
                 likesLiker = new Likes();
                 likesLiker.setIdOjbect(like.getIdObjectLiker());
                 likesLiker.setTypeObject(like.getTypeObjectLiker());
