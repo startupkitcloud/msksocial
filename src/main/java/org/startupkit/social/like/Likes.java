@@ -1,5 +1,6 @@
 package org.startupkit.social.like;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.startupkit.core.annotation.MSKEntity;
 import org.startupkit.core.annotation.MSKId;
 
@@ -11,6 +12,7 @@ public class Likes {
 
 	
 	@MSKId
+	@BsonProperty("_id")
     protected String idOjbect;
 
 	protected String typeObject;
