@@ -44,7 +44,7 @@
         <maven.compiler.target>13</maven.compiler.target>
         
         <!-- msk config versions -->
-		<msk-core-version>2.1.1</msk-core-version>
+		<msk-core-version>2.1.3</msk-core-version>
 		<msk-user-version>2.1.0</msk-user-version>
 		<msk-notification-version>2.1.0</msk-notification-version>
     </properties> 

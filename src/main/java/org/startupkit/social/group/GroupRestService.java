@@ -1,11 +1,11 @@
 package org.startupkit.social.group;
 
+import org.startupkit.core.bucket.BucketService;
 import org.startupkit.core.configuration.Configuration;
 import org.startupkit.core.configuration.ConfigurationEnum;
 import org.startupkit.core.configuration.ConfigurationService;
 import org.startupkit.core.exception.BusinessException;
 import org.startupkit.core.photo.PhotoUpload;
-import org.startupkit.core.photo.PhotoUtils;
 import org.startupkit.core.utils.FileUtil;
 import org.startupkit.social.groupInfo.GroupInfoService;
 import org.startupkit.user.User;
@@ -34,6 +34,10 @@ public class GroupRestService extends UserBaseRestService {
 
     @EJB
     private ConfigurationService configurationService;
+
+    @EJB
+    private BucketService bucketService;
+
 
     @SecuredUser
     @POST
@@ -132,8 +136,8 @@ public class GroupRestService extends UserBaseRestService {
         int finalWidth = this.configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
         photoUpload.setFinalWidth(finalWidth);
         String idPhoto = photoUpload.getIdSubObject();
-        String path = this.groupService.pathFilesGroup(group.getId());
-        new PhotoUtils().saveImage(photoUpload, path, idPhoto);
+        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue();
+        bucketService.saveImage(photoUpload, path,  "group/" + idPhoto);
     }
 
 

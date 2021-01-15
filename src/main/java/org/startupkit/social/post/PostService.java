@@ -16,7 +16,6 @@ public interface PostService {
 
     void changePostNewsStatus(Post post) throws Exception;
 
-
     void save(Post post, Boolean sendGroupMessage) throws Exception;
 
     List<Post> listAll() throws Exception;
@@ -26,7 +25,6 @@ public interface PostService {
     List<Post> search(PostSearch postSearch) throws Exception;
 
     List<Post> simpleSearch(PostSearch postSearch) throws Exception;
-
 
     Post retrieve(String idPost) throws Exception;
 
@@ -50,9 +48,7 @@ public interface PostService {
 
     String videoPath(String idPost) throws Exception;
 
-    void saveVideo(PhotoUpload photoUpload) throws Exception;
-
-    void saveVideoAsync(PhotoUpload photoUpload) throws Exception;
+    void saveVideoAndPhoto(PhotoUpload puVideo, PhotoUpload puPhoto) throws Exception;
 
     void saveVideoByParts(PhotoUpload photoUpload) throws Exception;
 

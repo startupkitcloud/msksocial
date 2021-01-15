@@ -6,12 +6,12 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.startupkit.admin.userb.UserBService;
 import org.startupkit.admin.util.SecuredAdmin;
+import org.startupkit.core.bucket.BucketService;
 import org.startupkit.core.configuration.Configuration;
 import org.startupkit.core.configuration.ConfigurationEnum;
 import org.startupkit.core.configuration.ConfigurationService;
 import org.startupkit.core.exception.BusinessException;
 import org.startupkit.core.photo.PhotoUpload;
-import org.startupkit.core.photo.PhotoUtils;
 import org.startupkit.core.utils.FileUtil;
 import org.startupkit.notification.email.EmailService;
 import org.startupkit.social.comment.Comment;
@@ -62,10 +62,11 @@ public class PostRestService extends UserBaseRestService {
     private ConfigurationService configurationService;
 
     @EJB
-    private EmailService emailService;
+    private SpiderService spiderService;
 
     @EJB
-    private SpiderService spiderService;
+    private BucketService bucketService;
+
 
     @SecuredUser
     @POST
@@ -253,11 +254,11 @@ public class PostRestService extends UserBaseRestService {
             try {
 
                 Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
-                String path = configuration.getValue() + "/post/" + idPost + "/" + imageType + "_main.jpg";
+                String path = configuration.getValue() + "/post/image/" + idPost + "/" + imageType + "_main.jpg";
 
                 File file = new File(path);
                 if (!file.exists()) {
-                    path = configuration.getValue() + "/post/" + "placeholder" + "/main.jpg";
+                    path = configuration.getValue() + "/post/image/" + "placeholder" + "/main.jpg";
                 }
                 ByteArrayInputStream in = new ByteArrayInputStream(FileUtil.readFile(path));
 
@@ -293,7 +294,7 @@ public class PostRestService extends UserBaseRestService {
     @Path("/saveVideo")
     @Consumes(MediaType.APPLICATION_JSON)
     public void saveVideo(PhotoUpload photoUpload) throws Exception {
-        postService.saveVideo(photoUpload);
+        postService.saveVideoAndPhoto(photoUpload, null);
     }
 
 
@@ -475,33 +476,26 @@ public class PostRestService extends UserBaseRestService {
 
             InputPart videoFile = uploadForm.get("video_file").get(0);
 
-            PhotoUpload photoUpload = new PhotoUpload();
+            PhotoUpload puVideo = new PhotoUpload();
             InputStream inputStream = videoFile.getBody(InputStream.class, null);
 
             byte[] bytes = IOUtils.toByteArray(inputStream);
-            photoUpload.setPhotoBytes(bytes);
-            photoUpload.setIdObject(photoId);
-            photoUpload.setIdSubObject("video");
-            photoUpload.setTitle(photoName);
-
-            postService.saveVideo(photoUpload);
+            puVideo.setPhotoBytes(bytes);
+            puVideo.setIdObject(photoId);
+            puVideo.setIdSubObject("video");
+            puVideo.setTitle(photoName);
 
             InputPart imageFile = uploadForm.get("image_file").get(0);
 
-            photoUpload = new PhotoUpload();
+            PhotoUpload puPhoto = new PhotoUpload();
             inputStream = imageFile.getBody(InputStream.class, null);
             bytes = IOUtils.toByteArray(inputStream);
-            photoUpload.setIdObject(photoId);
-            photoUpload.setPhotoBytes(bytes);
-            photoUpload.setIdSubObject("video");
-            photoUpload.setTitle(photoName);
+            puPhoto.setIdObject(photoId);
+            puPhoto.setPhotoBytes(bytes);
+            puPhoto.setIdSubObject("video");
+            puPhoto.setTitle(photoName);
 
-            Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
-            String path = configuration.getValue() + "/post/" + photoId;
-
-            // salva imagem do video
-            new PhotoUtils().saveImage(photoUpload, path, photoUpload.getIdSubObject());
-
+            postService.saveVideoAndPhoto(puVideo, puPhoto);
 
             StringBuilder textReturn = new StringBuilder();
             textReturn.append("{");
@@ -542,33 +536,29 @@ public class PostRestService extends UserBaseRestService {
 
             InputPart videoFile = uploadForm.get("video_file").get(0);
 
-            PhotoUpload photoUpload = new PhotoUpload();
+            PhotoUpload puVideo = new PhotoUpload();
             InputStream inputStream = videoFile.getBody(InputStream.class, null);
 
             byte[] bytes = IOUtils.toByteArray(inputStream);
-            photoUpload.setPhotoBytes(bytes);
-            photoUpload.setIdObject(photoId);
-            photoUpload.setIdSubObject("video");
-            photoUpload.setTitle(photoName);
+            puVideo.setPhotoBytes(bytes);
+            puVideo.setIdObject(photoId);
+            puVideo.setIdSubObject("video");
+            puVideo.setTitle(photoName);
 
-            postService.saveVideoAsync(photoUpload);
+
 
             InputPart imageFile = uploadForm.get("image_file").get(0);
 
-            photoUpload = new PhotoUpload();
+            PhotoUpload puPhoto = new PhotoUpload();
             inputStream = imageFile.getBody(InputStream.class, null);
             bytes = IOUtils.toByteArray(inputStream);
-            photoUpload.setIdObject(photoId);
-            photoUpload.setPhotoBytes(bytes);
-            photoUpload.setIdSubObject("video");
-            photoUpload.setTitle(photoName);
+            puPhoto.setIdObject(photoId);
+            puPhoto.setPhotoBytes(bytes);
+            puPhoto.setIdSubObject("video");
+            puPhoto.setTitle(photoName);
 
-            Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
-            String path = configuration.getValue() + "/post/" + photoId;
 
-            // salva imagem do video
-            new PhotoUtils().saveImage(photoUpload, path, photoUpload.getIdSubObject());
-
+            postService.saveVideoAndPhoto(puVideo, puPhoto);
 
             StringBuilder textReturn = new StringBuilder();
             textReturn.append("{");
@@ -602,7 +592,7 @@ public class PostRestService extends UserBaseRestService {
 
         Configuration configuration = configurationService.loadByCode(ConfigurationEnum.PATH_BASE);
 
-        String path = configuration.getValue() + "/post/" + idPost + "/" + idVideo + "_post.txt";
+        String path = configuration.getValue() + "/post/video/" + idPost + "/video_post.txt";
 
         boolean fgVideo = false;
 
