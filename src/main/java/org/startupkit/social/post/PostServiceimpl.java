@@ -8,11 +8,13 @@ import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.startupkit.core.address.AddressUtils;
+import org.startupkit.core.bucket.BucketService;
 import org.startupkit.core.configuration.Configuration;
 import org.startupkit.core.configuration.ConfigurationEnum;
 import org.startupkit.core.configuration.ConfigurationService;
@@ -22,7 +24,6 @@ import org.startupkit.core.dao.SearchProjection;
 import org.startupkit.core.exception.BusinessException;
 import org.startupkit.core.photo.GalleryItem;
 import org.startupkit.core.photo.PhotoUpload;
-import org.startupkit.core.photo.PhotoUtils;
 import org.startupkit.core.status.SimpleStatusEnum;
 import org.startupkit.core.utils.BusinessUtils;
 import org.startupkit.notification.NotificationBuilder;
@@ -100,6 +101,9 @@ public class PostServiceimpl implements PostService {
 
     @EJB
     private NotificationService notificationService;
+
+    @EJB
+    private BucketService bucketService;
 
 
 
@@ -649,8 +653,6 @@ public class PostServiceimpl implements PostService {
                             post.setFgSurveyAnswered(false);
                         }
                     }
-
-
                 }
             }
         }
@@ -752,19 +754,58 @@ public class PostServiceimpl implements PostService {
                 .findFirst()
                 .orElse(null);
 
+        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue();
+        gi.setUrlCover(bucketService.saveImage(photoUpload, path, "post/image/" + post.getId()) + "/main");
 
         if (item == null) {
             post.getGallery().add(gi);
             postDAO.update(post);
         }
-
-        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
-
-        new PhotoUtils().saveImage(photoUpload, path, gi.getId());
     }
 
 
-    private void saveVideoAndroid(Post post) throws Exception {
+
+    @Override
+    @Asynchronous
+    public void saveVideoAndPhoto(PhotoUpload puVideo, PhotoUpload puPhoto) throws Exception {
+
+        Post post = retrieve(puVideo.getIdObject());
+
+        if (post == null) {
+            throw new BusinessException("post_not_found");
+        }
+
+        //get the final size
+        int finalWidth = configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
+        puVideo.setFinalWidth(finalWidth);
+
+        GalleryItem gi = new GalleryItem();
+        gi.setId(puVideo.getIdSubObject());
+
+        if (post.getGallery() == null) {
+            post.setGallery(new ArrayList<>());
+        }
+
+        GalleryItem item = post.getGallery().stream()
+                .filter(p -> p.getId().equals(gi.getId()))
+                .findFirst()
+                .orElse(null);
+
+
+        String pathBase = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue();
+        String path =  pathBase + "/post/video/" + post.getId();
+
+        // salva imagem do video
+        if(puPhoto != null){
+            gi.setUrlCover(bucketService.saveImage(puPhoto, pathBase, "post/image/" + post.getId() + "/cover"));
+        }
+
+        //salva o video no disco para o ffmpeg
+        String pathIn = path + gi.getId() + "_temp_original.mp4";
+        String pathOut = path + gi.getId() + "_temp_android.mp4";
+        Path paths = Paths.get(pathIn);
+        Files.createDirectories(paths.getParent());
+        Files.write(paths, puVideo.getPhotoBytes());
 
         Configuration ffmepgPath = configurationService.loadByCode("PATH_FFMPEG");
 
@@ -772,14 +813,12 @@ public class PostServiceimpl implements PostService {
             throw new BusinessException("You need define PATH_FFMPEG configuration");
         }
 
-        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
-
         FFprobe ffprobe = new FFprobe(ffmepgPath.getValue() + "ffprobe");
         FFmpeg ffmpeg = new FFmpeg(ffmepgPath.getValue() + "ffmpeg");
         FFmpegBuilder builder = new FFmpegBuilder()
-                .setInput(path + "/video_original.mp4")
+                .setInput(pathIn)
                 .overrideOutputFiles(true)
-                .addOutput(path + "/video_post.mp4")
+                .addOutput(pathOut)
                 .setFormat("mp4")
                 .setVideoBitRate(10 * 360 * 360)
                 .setAudioChannels(1)
@@ -795,88 +834,23 @@ public class PostServiceimpl implements PostService {
         executor.createJob(builder).run();
         executor.createTwoPassJob(builder).run();
 
-    }
+        byte[] data = Files.readAllBytes(Paths.get(pathOut));
+        puVideo.setPhotoBytes(data);
+        gi.setUrlFile(bucketService.saveVideo(puVideo, pathBase, "post/video/" + post.getId()));
 
-
-    @Override
-    public void saveVideo(PhotoUpload photoUpload) throws Exception {
-
-        Post post = retrieve(photoUpload.getIdObject());
-
-        if (post == null) {
-            throw new BusinessException("post_not_found");
-        }
-
-        //get the final size
-        int finalWidth = configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
-        photoUpload.setFinalWidth(finalWidth);
-
-        GalleryItem gi = new GalleryItem();
-        gi.setId(photoUpload.getIdSubObject());
-
-        if (post.getGallery() == null) {
-            post.setGallery(new ArrayList<>());
-        }
-
-        GalleryItem item = post.getGallery().stream()
-                .filter(p -> p.getId().equals(gi.getId()))
-                .findFirst()
-                .orElse(null);
-
+        FileUtils.forceDelete(new File(pathIn));
+        FileUtils.forceDelete(new File(pathOut));
 
         if (item == null) {
             post.getGallery().add(gi);
             postDAO.update(post);
         }
 
-        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
-
-        new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
-
-        saveVideoAndroid(post);
-    }
-
-    @Override
-    @Asynchronous
-    public void saveVideoAsync(PhotoUpload photoUpload) throws Exception {
-
-        Post post = retrieve(photoUpload.getIdObject());
-
-        if (post == null) {
-            throw new BusinessException("post_not_found");
-        }
-
-        //get the final size
-        int finalWidth = configurationService.loadByCode("SIZE_DETAIL_MOBILE").getValueAsInt();
-        photoUpload.setFinalWidth(finalWidth);
-
-        GalleryItem gi = new GalleryItem();
-        gi.setId(photoUpload.getIdSubObject());
-
-        if (post.getGallery() == null) {
-            post.setGallery(new ArrayList<>());
-        }
-
-        GalleryItem item = post.getGallery().stream()
-                .filter(p -> p.getId().equals(gi.getId()))
-                .findFirst()
-                .orElse(null);
-
-
-        if (item == null) {
-            post.getGallery().add(gi);
-            postDAO.update(post);
-        }
-
-        String path = configurationService.loadByCode(ConfigurationEnum.PATH_BASE).getValue() + "/post/" + post.getId();
-
-        new PhotoUtils().saveVideo(photoUpload, path, gi.getId());
-
-        saveVideoAndroid(post);
-
-        Path newFilePath = Paths.get(path + "/video_post.txt");
+        Path newFilePath = Paths.get(pathBase + "/post/video/" + post.getId() + "/video_post.txt");
+        Files.createDirectories(newFilePath.getParent());
         Files.createFile(newFilePath);
     }
+
 
     @Override
     public void saveVideoByParts(PhotoUpload photoUpload) throws Exception {
@@ -907,7 +881,7 @@ public class PostServiceimpl implements PostService {
 
                     byte[] combined = Bytes.toArray(jezz);
                     photoUpload.setPhotoBytes(combined);
-                    saveVideo(photoUpload);
+                    saveVideoAndPhoto(photoUpload, null);
                 }
             } finally {
                 inputStream.close();
@@ -1139,7 +1113,7 @@ public class PostServiceimpl implements PostService {
 
     @Override
     public String videoPath(String idPost) throws Exception {
-        return configurationService.loadByCode("PATH_BASE").getValue() + "/post/" + idPost + "/" + "video_post.mp4";
+        return configurationService.loadByCode("PATH_BASE").getValue() + "/post/video/" + idPost + "_original.mp4";
     }
 
 

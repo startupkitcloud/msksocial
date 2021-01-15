@@ -53,7 +53,7 @@ public class PostInfoDAO extends AbstractDAO<PostInfo> {
         for(Document obj : listResults){
 
             Comment item = new Comment();
-            BasicDBObject obj2 = (BasicDBObject) obj.get("listActiveComments");
+            Document obj2 = (Document) obj.get("listActiveComments");
             item.setIdPost((String) obj2.get("idPost"));
             item.setId((String) obj2.get("id"));
             item.setIdUser((String) obj2.get("idUser"));
