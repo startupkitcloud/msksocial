@@ -6,5 +6,6 @@ public enum PostTypeEnum {
     IMAGE,
     TEXT,
     VIDEO,
-    SURVEY
+    SURVEY,
+    YOUTUBE
 }
